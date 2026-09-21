@@ -571,8 +571,8 @@ tag_check AS (
     SELECT 10 AS sort_order, 'TAGS (GOVERNANCE)' AS object_type,
         COUNT(*)::VARCHAR || ' of 4 tags' AS object_name,
         CASE WHEN COUNT(*) = 4 THEN 'PASS' ELSE 'FAIL' END AS status
-    FROM TASTYBYTES_GOVERNANCE.information_schema.tags
-    WHERE tag_schema = 'GOVERNANCE'
+    FROM SNOWFLAKE.ACCOUNT_USAGE.TAGS
+    WHERE tag_database = 'TASTYBYTES_GOVERNANCE' AND tag_schema = 'GOVERNANCE' AND deleted IS NULL
 ),
 warehouse_check AS (
     SELECT 11 AS sort_order, 'WAREHOUSES' AS object_type,
