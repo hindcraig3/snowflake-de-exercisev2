@@ -211,26 +211,8 @@ GRANT USAGE ON WAREHOUSE tb_analyst_wh TO ROLE tb_analyst;
 USE ROLE tb_admin;
 USE WAREHOUSE tb_de_wh;
 
-CREATE OR REPLACE FILE FORMAT TASTYBYTES_RAW.RAW.CSV_FF
-type = 'csv';
-
-CREATE OR REPLACE STAGE TASTYBYTES_RAW.RAW.S3LOAD_SALES
-COMMENT = 'Quickstarts S3 Stage Connection'
-DIRECTORY = (
-    ENABLE = true
-    AUTO_REFRESH = true
-  )
-url = 's3://sfquickstarts/frostbyte_tastybytes/'
-file_format = TASTYBYTES_RAW.RAW.CSV_FF;
-
-CREATE OR REPLACE STAGE TASTYBYTES_RAW.RAW.S3LOAD_REVIEWS
-COMMENT = 'Quickstarts S3 Stage Connection'
-DIRECTORY = (
-    ENABLE = true
-    AUTO_REFRESH = true
-  )
-url = 's3://sfquickstarts/tastybytes-voc/'
-file_format = TASTYBYTES_RAW.RAW.CSV_FF;
+CREATE OR REPLACE STAGE TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE
+COMMENT = 'Internal stage for loading CSV data files from setup/data/';
 
 CREATE OR REPLACE FILE FORMAT TASTYBYTES_RAW.RAW.JSON_IOT_FF
     TYPE = 'JSON'

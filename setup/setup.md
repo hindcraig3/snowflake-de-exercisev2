@@ -24,15 +24,15 @@ You will also have three roles (`TB_ADMIN`, `TB_DATA_ENGINEER`, `TB_ANALYST`) an
 
 1. Open [https://signup.snowflake.com/](https://signup.snowflake.com/).
 2. Sign up with Google, or enter:
-   - First name
-   - Last name
-   - Work email
-   - Company name (use your organisation, or a placeholder such as `Training`)
-   - Job title
+    1. First name
+    2. Last name
+    3. Work email
+    4. Company name (use your organisation)
+    5. Job title
 3. Choose edition, cloud, and region. These cannot be changed later.
-   - **Edition:** Enterprise (the default, and what this course expects)
-   - **Cloud:** AWS, Azure, or GCP — any is fine
-   - **Region:** pick one close to you
+    1. **Edition:** Enterprise (the default, and what this course expects)
+    2. **Cloud:** Azure
+    3. **Region:** Azure Australia East
 4. Accept the terms and select **Sign up**.
 5. Open the activation email from Snowflake and follow the link.
 6. Create your username and password, then select **Get Started**.
@@ -58,13 +58,13 @@ Snowflake now uses **Workspaces** as the SQL editor. Each user gets a default wo
 
 ## 3. Run `01_setup.sql`
 
-This script creates four databases, four schemas, three roles (`TB_ADMIN`, `TB_DATA_ENGINEER`, `TB_ANALYST`), two warehouses (`TB_DE_WH`, `TB_ANALYST_WH`), governance tags, masking policies, stages, file formats, empty RAW tables, and pre-populated staging/warehouse table DDL.
+This script creates four databases, four schemas, three roles (`TB_ADMIN`, `TB_DATA_ENGINEER`, `TB_ANALYST`), two warehouses (`TB_DE_WH`, `TB_ANALYST_WH`), governance tags, masking policies, an internal data load stage, empty RAW tables, and pre-populated staging/warehouse table DDL.
 
 1. In **My Workspace**, select **+** next to the workspace (or a folder) and choose **SQL File**.
 2. Name the file `01_setup.sql`.
 3. Confirm the context selector (top right of the editor) is set to:
-   - **Role:** `ACCOUNTADMIN`
-   - **Warehouse:** `COMPUTE_WH` (the trial default is fine for now)
+    - **Role:** `ACCOUNTADMIN`
+    - **Warehouse:** `COMPUTE_WH` (the trial default is fine for now)
 3. Open `setup/01_setup.sql` from this course on your computer.
 4. Copy the **entire** file and paste it into the new SQL file in Snowsight.
 5. Confirm the role is still `ACCOUNTADMIN`.
@@ -92,40 +92,58 @@ The setup script creates `TB_DE_WH` and `TB_ANALYST_WH`, and switches to `TB_ADM
 
 ---
 
-## 4. Run `02_dataload.sql`
+## 4. Upload data files to the internal stage
 
-This script copies TastyBytes data from the public Quickstarts S3 buckets, applies a few data-quality defects, and loads 4 pre-populated tables (`STG_COUNTRY`, `STG_LOCATION`, `DIM_LOCATION`, `DIM_DATE`) that you will use as reference examples and for dimension lookups.
+The data files are in the `setup/data/` folder. Upload them to the internal stage using Snowsight.
+
+1. In Snowsight, navigate to **Ingestion** » **Add Data** » **Load files into a Stage**.
+2. Select database **TASTYBYTES_RAW**, schema **RAW**, and stage **DATA_LOAD_STAGE**.
+3. Upload all 9 CSV files from the `setup/data/` folder:
+   - `country.csv`
+   - `customer_loyalty.csv`
+   - `franchise.csv`
+   - `location.csv`
+   - `menu.csv`
+   - `order_detail.csv`
+   - `order_header.csv`
+   - `truck.csv`
+   - `truck_reviews.csv`
+4. Wait for all uploads to complete before proceeding.
+
+---
+
+## 5. Run `02_dataload.sql`
+
+This script loads the uploaded CSV files from the internal stage into the RAW tables. The data already includes all workshop modifications (whitespace in customer cities, multilingual reviews) — no extra steps needed.
 
 1. In **My Workspace**, create another SQL file named `02_dataload.sql`.
 2. Copy the **entire** contents of `setup/02_dataload.sql` into that file.
 3. Leave the role as `ACCOUNTADMIN` (or switch to `TB_ADMIN` if you prefer — both work after setup).
 4. Select **Run All**.
 
-The copy into `ORDER_HEADER` and `ORDER_DETAIL` is large. Allow several minutes. Do not close the browser tab while it is running.
+The last query lists row counts across all layers. Expected values:
 
-The last query lists row counts across all layers. Typical values:
-
-| Layer | Table | Approximate rows |
+| Layer | Table | Rows |
 |---|---|---|
-| RAW | `ORDER_DETAIL` | ~673 million |
-| RAW | `ORDER_HEADER` | ~248 million |
-| RAW | `CUSTOMER_LOYALTY` | ~222 thousand |
-| RAW | `LOCATION` | ~13 thousand |
-| RAW | `TRUCK_REVIEWS` | ~1 thousand (trimmed, plus 15 workshop inserts) |
+| RAW | `ORDER_DETAIL` | 271,946 |
+| RAW | `ORDER_HEADER` | 100,000 |
+| RAW | `CUSTOMER_LOYALTY` | 3,988 |
+| RAW | `LOCATION` | 13,093 |
+| RAW | `TRUCK_REVIEWS` | 1,016 |
 | RAW | `TRUCK` | 450 |
 | RAW | `FRANCHISE` | 335 |
 | RAW | `MENU` | 100 |
 | RAW | `COUNTRY` | 30 |
 | STAGING | `STG_COUNTRY` | 30 |
-| STAGING | `STG_LOCATION` | ~13 thousand |
+| STAGING | `STG_LOCATION` | 13,093 |
 | WAREHOUSE | `DIM_DATE` | 2,557 |
-| WAREHOUSE | `DIM_LOCATION` | ~13 thousand |
+| WAREHOUSE | `DIM_LOCATION` | 13,093 |
 
-If a `COPY INTO` fails, run that statement again. Do not re-run the whole file unless the tables are empty, or you will duplicate the workshop inserts.
+If a `COPY INTO` fails, check that all files were uploaded to the correct stage, then re-run the failed statement.
 
 ---
 
-## 5. Confirm you are ready for Task 1
+## 6. Confirm you are ready for Task 1
 
 In a new SQL file, run:
 
@@ -151,8 +169,9 @@ For the exercise modules, use `TB_DATA_ENGINEER` and `TB_DE_WH` as your default 
 | Activation email never arrives | Check spam; retry signup with the same email; ask IT to allow Snowflake mail |
 | `Insufficient privileges` on `CREATE DATABASE` | Set the worksheet role to `ACCOUNTADMIN` and run again |
 | Setup check shows FAIL | Re-run `01_setup.sql` as `ACCOUNTADMIN` from the top |
-| Copy runs for a long time | Expected for the order tables. Wait for **Run All** to finish |
-| Duplicate review rows after a second load | Those come from the workshop `INSERT`. Use a new trial account, or truncate `TRUCK_REVIEWS` and copy that table only |
+| Cannot find **Add Data** menu | In Snowsight, select **Data** in the left sidebar, then **+ Data** in the top-right |
+| File upload fails or times out | Check your network connection and retry. Files are small (~27 MB total) |
+| `COPY INTO` fails with file not found | Verify the files were uploaded to the correct stage (`TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE`) |
 | Warehouse will not start | Resume `TB_DE_WH` or `COMPUTE_WH` from the context selector |
 
 To reset a trial environment and start again, uncomment the `DROP` statements at the top of `01_setup.sql`, run them as `ACCOUNTADMIN`, then run both scripts from the beginning.

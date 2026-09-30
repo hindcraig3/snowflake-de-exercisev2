@@ -9,100 +9,88 @@
                          |___/          |___/            
 ***************************************************************************************************/
 /*--
- raw zone table load 
- NOTE: This may take 1-2 mins. 
+ RAW zone table load from local CSV files
  
+ PREREQUISITES:
+   1. Run 01_setup.sql first to create databases, schemas, tables, and roles.
+   2. Upload all 9 CSV files from setup/data/ to the internal stage using Snowsight:
+      a. In Snowsight, navigate to Data » Add Data » Load files into a Stage.
+      b. Select database TASTYBYTES_RAW, schema RAW, and stage DATA_LOAD_STAGE.
+      c. Upload all 9 CSV files from the setup/data/ folder.
+   3. Then run this script to load the data into RAW tables.
 --*/
 
--- TRUNCATE TABLE TASTYBYTES_RAW.RAW.COUNTRY;
--- TRUNCATE TABLE TASTYBYTES_RAW.RAW.FRANCHISE;
--- TRUNCATE TABLE TASTYBYTES_RAW.RAW.LOCATION;
--- TRUNCATE TABLE TASTYBYTES_RAW.RAW.MENU;
--- TRUNCATE TABLE TASTYBYTES_RAW.RAW.TRUCK;
--- TRUNCATE TABLE TASTYBYTES_RAW.RAW.CUSTOMER_LOYALTY;
--- TRUNCATE TABLE TASTYBYTES_RAW.RAW.ORDER_DETAIL;
--- TRUNCATE TABLE TASTYBYTES_RAW.RAW.TRUCK_REVIEWS;
-
 USE ROLE TB_ADMIN;
-ALTER WAREHOUSE tb_de_wh SET WAREHOUSE_SIZE = 'Large';
 USE WAREHOUSE tb_de_wh;
 
--- country table load
+-- ============================================================================
+-- LOAD RAW TABLES FROM INTERNAL STAGE
+-- Data files include all modifications (whitespace in CUSTOMER_LOYALTY,
+-- multilingual TRUCK_REVIEWS) already baked in — no post-load SQL needed.
+-- ============================================================================
+
+-- Country reference data
 COPY INTO TASTYBYTES_RAW.RAW.COUNTRY
-FROM @TASTYBYTES_RAW.RAW.S3LOAD_SALES/raw_pos/country/;
+FROM @TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE/
+PATTERN = '.*country.*'
+FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1 NULL_IF = (''))
+ON_ERROR = 'ABORT_STATEMENT';
 
--- franchise table load
+-- Franchise reference data
 COPY INTO TASTYBYTES_RAW.RAW.FRANCHISE
-FROM @TASTYBYTES_RAW.RAW.S3LOAD_SALES/raw_pos/franchise/;
+FROM @TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE/
+PATTERN = '.*franchise.*'
+FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1 NULL_IF = (''))
+ON_ERROR = 'ABORT_STATEMENT';
 
--- location table load
+-- Location reference data
 COPY INTO TASTYBYTES_RAW.RAW.LOCATION
-FROM @TASTYBYTES_RAW.RAW.S3LOAD_SALES/raw_pos/location/;
+FROM @TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE/
+PATTERN = '.*location.*'
+FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1 NULL_IF = (''))
+ON_ERROR = 'ABORT_STATEMENT';
 
--- menu table load
+-- Menu data (VARIANT column loaded as JSON string — Snowflake auto-parses to VARIANT)
 COPY INTO TASTYBYTES_RAW.RAW.MENU
-FROM @TASTYBYTES_RAW.RAW.S3LOAD_SALES/raw_pos/menu/;
+FROM @TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE/
+PATTERN = '.*menu.*'
+FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1 NULL_IF = (''))
+ON_ERROR = 'ABORT_STATEMENT';
 
--- truck table load
+-- Truck fleet data
 COPY INTO TASTYBYTES_RAW.RAW.TRUCK
-FROM @TASTYBYTES_RAW.RAW.S3LOAD_SALES/raw_pos/truck/;
+FROM @TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE/
+PATTERN = '.*truck\.csv.*'
+FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1 NULL_IF = (''))
+ON_ERROR = 'ABORT_STATEMENT';
 
--- customer_loyalty table load
+-- Customer loyalty data (whitespace in city column is pre-applied)
 COPY INTO TASTYBYTES_RAW.RAW.CUSTOMER_LOYALTY
-FROM @TASTYBYTES_RAW.RAW.S3LOAD_SALES/raw_customer/customer_loyalty/;
+FROM @TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE/
+PATTERN = '.*customer_loyalty.*'
+FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1 NULL_IF = (''))
+ON_ERROR = 'ABORT_STATEMENT';
 
--- order_header table load
+-- Order headers (subsampled: ~100K orders from 2022)
 COPY INTO TASTYBYTES_RAW.RAW.ORDER_HEADER
-FROM @TASTYBYTES_RAW.RAW.S3LOAD_SALES/raw_pos/order_header/;
+FROM @TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE/
+PATTERN = '.*order_header.*'
+FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1 NULL_IF = (''))
+ON_ERROR = 'ABORT_STATEMENT';
 
--- order_detail table load
+-- Order details (matching order IDs only)
 COPY INTO TASTYBYTES_RAW.RAW.ORDER_DETAIL
-FROM @TASTYBYTES_RAW.RAW.S3LOAD_SALES/raw_pos/order_detail/;
+FROM @TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE/
+PATTERN = '.*order_detail.*'
+FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1 NULL_IF = (''))
+ON_ERROR = 'ABORT_STATEMENT';
 
--- truck_reviews table load
+-- Truck reviews (includes multilingual entries)
 COPY INTO TASTYBYTES_RAW.RAW.TRUCK_REVIEWS
-FROM @TASTYBYTES_RAW.RAW.S3LOAD_REVIEWS/raw_support/truck_reviews/;
-
--- Reduce the size of the Truck review table
-DELETE FROM TASTYBYTES_RAW.RAW.TRUCK_REVIEWS
-WHERE review_id < (124594-1000);
-
--- ============================================================================
--- PRE-WORKSHOP DATA MODIFICATIONS
--- Run this script ONCE before the workshop to prepare the RAW data.
--- ============================================================================
-
-USE DATABASE TASTYBYTES_RAW;
-USE SCHEMA RAW;
-
-
-UPDATE CUSTOMER_LOYALTY SET city = '  ' || city WHERE MOD(customer_id, 20) = 0;
-UPDATE CUSTOMER_LOYALTY SET city = city || '  ' WHERE MOD(customer_id, 20) = 1;
-UPDATE CUSTOMER_LOYALTY SET city = UPPER(city) WHERE MOD(customer_id, 20) = 2;
-UPDATE CUSTOMER_LOYALTY SET city = LOWER(city) WHERE MOD(customer_id, 20) = 3;
-
-
-INSERT INTO TRUCK_REVIEWS (order_id, language, source, review, review_id)
-VALUES
-(40744, 'de', 'Google', 'Die Bratwurst vom Smoky BBQ Truck in Berlin war absolut fantastisch. Perfekt gegrillt und mit einer tollen Sauce serviert. Der Service war schnell und freundlich.', 900001),
-(40745, 'de', 'Yelp', 'Der Mega Melt Truck in Berlin hat mich enttaeuscht. Das Grilled Cheese Sandwich war kalt und der Kaese kaum geschmolzen. Lange Wartezeit trotz weniger Kunden.', 900002),
-(40746, 'de', 'Google', 'Kitakata Ramen Bar in Berlin - die beste Ramen die ich je gegessen habe! Der Tonkotsu war reichhaltig und die Nudeln perfekt. Komme definitiv wieder.', 900003),
-(40747, 'ja', 'Google', 'ボストンのKitakata Ramen Barで食べたラーメンは最高でした。スープの味が深くて、麺のコシも完璧。また行きたいです。', 900004),
-(40748, 'ja', 'Yelp', 'Plant Palaceのベジタリアンメニューは期待外れでした。味が薄くて量も少ない。価格に見合わないと思います。', 900005),
-(40749, 'ko', 'Google', '서울의 Peking Truck에서 먹은 음식이 정말 맛있었습니다. 특히 볶음밥이 일품이었고, 서비스도 친절했습니다.', 900006),
-(40750, 'ko', 'Yelp', 'Freezing Point 아이스크림이 너무 달았고, 종류도 적었습니다. 가격 대비 양이 부족합니다.', 900007),
-(40751, 'hi', 'Google', 'दिल्ली में Nanis Kitchen का खाना बहुत स्वादिष्ट था। बटर चिकन और नान बिल्कुल घर जैसा स्वाद। सर्विस भी बहुत अच्छी थी।', 900008),
-(40752, 'hi', 'Yelp', 'Tasty Tibs का इथियोपियन खाना ठीक था लेकिन कुछ खास नहीं। मसाले की कमी थी और सर्विस धीमी थी।', 900009),
-(40753, 'sv', 'Google', 'Guac n Roll i Stockholm hade fantastiska tacos! Guacamolen var frasig och smakrik. Perfekt lunch pa sprangen.', 900010),
-(40754, 'sv', 'Yelp', 'Cheeky Greek i Stockholm var en besvikelse. Gyrosen var torr och salladen inte frash. Behover forbattra kvaliteten.', 900011),
-(40755, 'pl', 'Google', 'Amped Up Franks w Krakowie to najlepsze hot dogi jakie jadlem! Kielbasa swietnej jakosci, dodatki swietne. Polecam kazdemu!', 900012),
-(40756, 'pl', 'Yelp', 'The Mac Shack w Krakowie - makaron byl rozgotowany i sos bez smaku. Dlugi czas oczekiwania. Nie wrocimy.', 900013),
-(40757, 'ar', 'Google', 'تجربة رائعة مع شاحنة Better Off Bread. الساندويتشات طازجة ولذيذة والخدمة سريعة.', 900014),
-(40758, 'pt', 'Google', 'Revenge of the Curds em Sao Paulo foi incrivel! A poutine era autentica e deliciosa. O molho estava perfeito e as batatas crocantes.', 900015);
-
-
-
-ALTER WAREHOUSE tb_de_wh SET WAREHOUSE_SIZE = 'XSmall';
+FROM @TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE/
+PATTERN = '.*truck_reviews.*'
+FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1 NULL_IF = (''))
+ON_ERROR = 'ABORT_STATEMENT';
 
 -- ============================================================================
 -- VALIDATE
@@ -119,4 +107,3 @@ SELECT 'WAREHOUSE', TABLE_NAME, ROW_COUNT
 FROM TASTYBYTES_CONSUMPTION.information_schema.tables
 WHERE TABLE_SCHEMA = 'WAREHOUSE' AND TABLE_TYPE = 'BASE TABLE'
 ORDER BY 1, 2;
-
