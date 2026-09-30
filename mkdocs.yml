@@ -1,0 +1,57 @@
+site_name: TastyBytes Data Engineering Exercise
+site_description: Hands-on Snowflake data engineering exercise — build a complete pipeline from raw data to reporting view.
+docs_dir: .
+site_dir: site
+
+theme:
+  name: material
+  custom_dir: overrides
+  palette:
+    scheme: snowflake
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - def_list
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - same-dir
+
+nav:
+  - Home: index.md
+  - Setup:
+      - Environment Setup: setup/setup.md
+  - Exercises:
+      - Background: exercises/00_background.md
+      - "Module 1 — Raw to Staging": exercises/01_module1_raw_to_staging.md
+      - "Module 2 — Staging to Warehouse": exercises/02_module2_staging_to_warehouse.md
+      - "Module 3 — Warehouse to Data Product": exercises/03_module3_warehouse_to_product.md
+  - Model Answers:
+      - Overview: model_answer/model_answer.md
+  - Scripts:
+      - Validation: scripts/validate_exercise_instructions.md
+      - Incremental Load Test: scripts/test_incremental_load_instructions.md

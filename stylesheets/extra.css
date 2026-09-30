@@ -1,0 +1,68 @@
+:root {
+  --snowflake-blue: #29b5e8;
+  --snowflake-dark-blue: #11567f;
+  --snowflake-navy: #062c49;
+  --snowflake-ink: #1f2933;
+  --snowflake-cloud: #f5f9fc;
+  --snowflake-border: #d8e3ea;
+}
+
+[data-md-color-scheme="snowflake"] {
+  --md-primary-fg-color: var(--snowflake-navy);
+  --md-primary-bg-color: #ffffff;
+  --md-accent-fg-color: var(--snowflake-blue);
+  --md-default-bg-color: #ffffff;
+  --md-default-fg-color: var(--snowflake-ink);
+  --md-code-bg-color: var(--snowflake-cloud);
+}
+
+.md-header {
+  background: var(--snowflake-navy);
+}
+
+.md-tabs {
+  background: var(--snowflake-dark-blue);
+}
+
+.md-nav__title,
+.md-content h1,
+.md-content h2,
+.md-content h3 {
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.md-content h1 {
+  color: var(--snowflake-navy);
+  border-bottom: 3px solid var(--snowflake-blue);
+  padding-bottom: 0.35rem;
+}
+
+.md-button--primary {
+  background: var(--snowflake-blue);
+  border-color: var(--snowflake-blue);
+  color: #ffffff;
+}
+
+.md-typeset a {
+  color: var(--snowflake-dark-blue);
+}
+
+.md-typeset a:hover {
+  color: var(--snowflake-blue);
+}
+
+.md-typeset code {
+  border-radius: 4px;
+}
+
+.md-typeset table:not([class]) th {
+  background: var(--snowflake-navy);
+  color: #ffffff;
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+  border-left: 0.25rem solid var(--snowflake-blue);
+}
