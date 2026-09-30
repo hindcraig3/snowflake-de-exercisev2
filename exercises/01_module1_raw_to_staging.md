@@ -505,6 +505,7 @@ Before moving to Module 2, verify:
 - [ ] All tables have DATA_DOMAIN, DATA_CLASSIFICATION, and COST_CENTER tags
 - [ ] STG_CUSTOMER_LOYALTY PII columns are tagged and masked for TB_ANALYST
 - [ ] All tables have table-level and column-level COMMENTs
-- [ ] All 4 load procedures exist and execute successfully
+- [ ] All 4 load procedures exist with a COMMENT and execute successfully
+- [ ] TB_DATA_ENGINEER has appropriate grants; TB_ANALYST does NOT have access to staging tables
 - [ ] Task graph runs end-to-end without errors
 - [ ] Row counts match expected values

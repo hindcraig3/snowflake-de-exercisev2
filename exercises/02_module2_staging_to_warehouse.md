@@ -15,7 +15,7 @@ Create 2 dimension tables and 1 fact table in `TASTYBYTES_CONSUMPTION.WAREHOUSE`
 - **Task prefix:** `TASK_LOAD_` (e.g., `TASK_LOAD_DIM_MENU`), root task: `TASK_WH_ROOT`
 
 ### Table and Column Comments
-Every table, view and coloumn must have a COMMENT inline in the CREATE TABLE statement (Tasks 1.2-1.5). Table comments should describe the table's purpose. Column comments should describe the column's content.
+Every table, view and column must have a COMMENT inline in the CREATE TABLE statement (Tasks 2.1 - 2.3). Table comments should describe the table's purpose. Column comments should describe the column's content.
 
 Syntax:
 ```
@@ -208,6 +208,22 @@ Apply the same `TASTY_PII` tags as in Module 1:
 | PHONE_NUMBER | `'PHONE_NUMBER'` |
 | BIRTHDAY_DATE | `'BIRTHDAY'` |
 
+### Validate Masking
+
+Switch to `TB_ANALYST` and verify PII is masked:
+```sql
+USE ROLE TB_ANALYST;
+SELECT FIRST_NAME, LAST_NAME, E_MAIL, PHONE_NUMBER, BIRTHDAY_DATE
+FROM TASTYBYTES_CONSUMPTION.WAREHOUSE.DIM_CUSTOMER
+LIMIT 5;
+-- Expected: All values show '**MASKED**' or '1900-01-01'
+```
+
+Switch back when done:
+```sql
+USE ROLE TB_DATA_ENGINEER;
+```
+
 ---
 
 ## Task 2.5: Define GRANTS
@@ -394,7 +410,16 @@ UNION ALL
 SELECT 'FACT_ORDER_LINE', COUNT(*) FROM TASTYBYTES_CONSUMPTION.WAREHOUSE.FACT_ORDER_LINE;
 
 
--- 2. Revenue sanity check
+-- 2. No NULL surrogate keys in fact table
+SELECT
+  COUNT_IF(DIM_MENU_SK IS NULL) AS null_menu,
+  COUNT_IF(DIM_CUSTOMER_SK IS NULL) AS null_customer,
+  COUNT_IF(DIM_LOCATION_SK IS NULL) AS null_location,
+  COUNT_IF(DIM_DATE_SK IS NULL) AS null_date
+FROM TASTYBYTES_CONSUMPTION.WAREHOUSE.FACT_ORDER_LINE;
+-- Expected: all 0
+
+-- 3. Revenue sanity check
 SELECT w.total_revenue_warehouse, s.total_revenue_staging
 FROM (SELECT SUM(LINE_PRICE) AS total_revenue_warehouse FROM TASTYBYTES_CONSUMPTION.WAREHOUSE.FACT_ORDER_LINE) w,
      (SELECT SUM(PRICE) AS total_revenue_staging FROM TASTYBYTES_REFINED.STAGING.STG_ORDER_DETAIL) s;
@@ -410,7 +435,11 @@ Before moving to Module 3, verify:
 - [ ] DIM_CUSTOMER has 222,540 records with IS_DELETED = FALSE
 - [ ] FACT_ORDER_LINE row count matches STG_ORDER_DETAIL
 - [ ] No NULL surrogate keys in the fact table
+- [ ] COGS_AMOUNT matches COST_OF_GOODS_USD * QUANTITY for all rows
 - [ ] All tables have governance tags and comments
 - [ ] PII columns on DIM_CUSTOMER are tagged and masked for TB_ANALYST
+- [ ] All 3 load procedures exist and execute successfully
+- [ ] TB_DATA_ENGINEER has full access to all warehouse tables
 - [ ] TB_ANALYST has SELECT on all warehouse tables
+- [ ] Task graph runs end-to-end without errors
 - [ ] Revenue totals match between fact table and staging

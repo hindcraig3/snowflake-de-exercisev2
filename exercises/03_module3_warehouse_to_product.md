@@ -12,6 +12,17 @@ Create a reporting view in `TASTYBYTES_CONSUMPTION.ANALYTICS` that answers the b
 - **View prefix:** `RPT_` for reporting objects
 - **Schema:** `TASTYBYTES_CONSUMPTION.ANALYTICS`
 
+### Comment
+
+Every table, view and column must have a COMMENT inline in the CREATE TABLE / CREATE VIEW statement (Tasks 3.1). Table comments should describe the table's purpose. Column comments should describe the column's content.
+
+Syntax:
+
+```sql
+COMMENT ON VIEW TASTYBYTES_CONSUMPTION.ANALYTICS.RPT_MONTHLY_MENU_SALES IS
+  'Monthly sales volume, revenue, and margin by menu item, category, and location. Grain: one row per month/menu item/city.';
+```
+
 ### Role and Warehouse
 ```sql
 USE ROLE TB_DATA_ENGINEER;
@@ -84,12 +95,7 @@ ALTER VIEW TASTYBYTES_CONSUMPTION.ANALYTICS.RPT_MONTHLY_MENU_SALES
           TASTYBYTES_GOVERNANCE.GOVERNANCE.COST_CENTER = 'TASTYBYTES';
 ```
 
-### Comment
 
-```sql
-COMMENT ON VIEW TASTYBYTES_CONSUMPTION.ANALYTICS.RPT_MONTHLY_MENU_SALES IS
-  'Monthly sales volume, revenue, and margin by menu item, category, and location. Grain: one row per month/menu item/city.';
-```
 
 ---
 
@@ -182,8 +188,9 @@ FROM TASTYBYTES_REFINED.STAGING.STG_ORDER_DETAIL;
 You have now built a complete end-to-end data pipeline. Verify:
 
 - [ ] RPT_MONTHLY_MENU_SALES view exists and returns data
+- [ ] The view has a descriptive COMMENT and all columns have COMMENTs
 - [ ] The view has DATA_DOMAIN, DATA_CLASSIFICATION, and COST_CENTER tags
-- [ ] The view has a descriptive COMMENT
+- [ ] TB_DATA_ENGINEER has full access to the view
 - [ ] TB_ANALYST can query the view
 - [ ] Revenue totals tie back across all layers (staging, warehouse, reporting)
 - [ ] The business queries return sensible results (12 months, positive margins, multiple cities)

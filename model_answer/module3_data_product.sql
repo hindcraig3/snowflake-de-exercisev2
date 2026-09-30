@@ -12,7 +12,26 @@ USE SCHEMA TASTYBYTES_CONSUMPTION.ANALYTICS;
 -- Monthly sales volume, revenue, and margin by menu item and location.
 -- Grain: one row per calendar month, per menu item, per city.
 -- =============================================================
-CREATE OR REPLACE VIEW RPT_MONTHLY_MENU_SALES AS
+CREATE OR REPLACE VIEW RPT_MONTHLY_MENU_SALES
+  (
+    YEAR              COMMENT 'Calendar year',
+    QUARTER           COMMENT 'Calendar quarter (Q1-Q4)',
+    MONTH_NAME        COMMENT 'Full month name',
+    MONTH_START_DATE  COMMENT 'First day of the month',
+    CITY              COMMENT 'City where sales occurred',
+    COUNTRY           COMMENT 'Country where sales occurred',
+    MENU_ITEM_NAME    COMMENT 'Name of the menu item sold',
+    ITEM_CATEGORY     COMMENT 'High-level item category (e.g., Main, Dessert)',
+    ITEM_SUBCATEGORY  COMMENT 'Granular item subcategory',
+    TRUCK_BRAND_NAME  COMMENT 'Food truck brand that sold the item',
+    TOTAL_QUANTITY_SOLD COMMENT 'Total units sold in the period',
+    TOTAL_REVENUE     COMMENT 'Total revenue (sum of line prices) in USD',
+    TOTAL_COGS        COMMENT 'Total cost of goods sold in USD',
+    TOTAL_MARGIN      COMMENT 'Gross margin (revenue minus COGS) in USD',
+    MARGIN_PCT        COMMENT 'Gross margin as a percentage of revenue'
+  )
+  COMMENT = 'Monthly sales volume, revenue, and margin by menu item, category, and location. Grain: one row per month/menu item/city.'
+AS
 SELECT
     dd.YEAR,
     dd.QUARTER,
@@ -57,9 +76,6 @@ ALTER VIEW TASTYBYTES_CONSUMPTION.ANALYTICS.RPT_MONTHLY_MENU_SALES
   SET TAG TASTYBYTES_GOVERNANCE.GOVERNANCE.DATA_DOMAIN = 'Sales',
           TASTYBYTES_GOVERNANCE.GOVERNANCE.DATA_CLASSIFICATION = 'Internal',
           TASTYBYTES_GOVERNANCE.GOVERNANCE.COST_CENTER = 'TASTYBYTES';
-
-COMMENT ON VIEW TASTYBYTES_CONSUMPTION.ANALYTICS.RPT_MONTHLY_MENU_SALES IS
-  'Monthly sales volume, revenue, and margin by menu item, category, and location. Grain: one row per month/menu item/city.';
 
 -- =============================================================
 -- Task 3.3: Grant access

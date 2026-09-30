@@ -31,19 +31,19 @@ The data platform uses a layered architecture in Snowflake. Each layer has a ded
 ```mermaid
 flowchart LR
   subgraph raw [RAW Layer]
-    RAW_DB["TASTYBYTES_RAW.RAW\n9 source tables"]
+    RAW_DB["TASTYBYTES_RAW.RAW <br>9 source tables"]
   end
   subgraph staging [STAGING Layer]
-    STG_DB["TASTYBYTES_REFINED.STAGING\nCleaned and typed tables"]
+    STG_DB["TASTYBYTES_REFINED.STAGING<br> Cleaned and typed tables"]
   end
   subgraph warehouse [WAREHOUSE Layer]
-    WH_DB["TASTYBYTES_CONSUMPTION.WAREHOUSE\nDimensions and facts"]
+    WH_DB["TASTYBYTES_CONSUMPTION.WAREHOUSE<br> Dimensions and facts"]
   end
   subgraph product [DATA PRODUCT Layer]
-    DP_DB["TASTYBYTES_CONSUMPTION.ANALYTICS\nReporting views"]
+    DP_DB["TASTYBYTES_CONSUMPTION.ANALYTICS <br>Reporting views"]
   end
   subgraph governance [GOVERNANCE]
-    GOV_DB["TASTYBYTES_GOVERNANCE.GOVERNANCE\nTags and masking policies"]
+    GOV_DB["TASTYBYTES_GOVERNANCE.GOVERNANCE<br>Tags and masking policies"]
   end
   RAW_DB --> STG_DB --> WH_DB --> DP_DB
   GOV_DB -.->|"tags and policies"| STG_DB
@@ -66,9 +66,9 @@ Three roles control access across the platform:
 
 ```mermaid
 flowchart TD
-  ADMIN["TB_ADMIN\nGovernance and administration"]
-  DE["TB_DATA_ENGINEER\nPipeline development"]
-  ANALYST["TB_ANALYST\nReporting consumer"]
+  ADMIN["TB_ADMIN <br>Governance and administration"]
+  DE["TB_DATA_ENGINEER <br>Pipeline development"]
+  ANALYST["TB_ANALYST <br>Reporting consumer"]
 
   ADMIN -->|"owns"| GOV["GOVERNANCE layer"]
   DE -->|"creates and loads"| STG["STAGING layer"]
@@ -109,10 +109,10 @@ flowchart TD
   end
 
   subgraph stagingLayer [STAGING - You Build These]
-    STG_MENU["STG_MENU\nModule 1"]
-    STG_OH["STG_ORDER_HEADER\nModule 1"]
-    STG_OD["STG_ORDER_DETAIL\nModule 1"]
-    STG_CL["STG_CUSTOMER_LOYALTY\nModule 1"]
+    STG_MENU["STG_MENU Module 1"]
+    STG_OH["STG_ORDER_HEADER Module 1"]
+    STG_OD["STG_ORDER_DETAIL Module 1"]
+    STG_CL["STG_CUSTOMER_LOYALTY Module 1"]
   end
 
   subgraph stagingPre [STAGING - Pre-Created]
@@ -121,9 +121,9 @@ flowchart TD
   end
 
   subgraph whLayer [WAREHOUSE - You Build These]
-    DIM_MENU["DIM_MENU SCD2\nModule 2"]
-    DIM_CUST["DIM_CUSTOMER SCD1\nModule 2"]
-    FACT["FACT_ORDER_LINE\nModule 2"]
+    DIM_MENU["DIM_MENU SCD2 Module 2"]
+    DIM_CUST["DIM_CUSTOMER SCD1 Module 2"]
+    FACT["FACT_ORDER_LINE Module 2"]
   end
 
   subgraph whPre [WAREHOUSE - Pre-Created]
@@ -132,7 +132,7 @@ flowchart TD
   end
 
   subgraph dpLayer [DATA PRODUCT - You Build This]
-    RPT["RPT_MONTHLY_MENU_SALES\nModule 3"]
+    RPT["RPT_MONTHLY_MENU_SALES Module 3"]
   end
 
   MENU_RAW --> STG_MENU --> DIM_MENU --> FACT
