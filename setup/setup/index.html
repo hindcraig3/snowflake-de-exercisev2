@@ -1,0 +1,1266 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Hands-on Snowflake data engineering exercise — build a complete pipeline from raw data to reporting view.">
+      
+      
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../../exercises/00_background/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Environment Setup - TastyBytes Data Engineering Exercise</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="snowflake" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#environment-setup" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="TastyBytes Data Engineering Exercise" class="md-header__button md-logo" aria-label="TastyBytes Data Engineering Exercise" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TastyBytes Data Engineering Exercise
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Environment Setup
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="TastyBytes Data Engineering Exercise" class="md-nav__button md-logo" aria-label="TastyBytes Data Engineering Exercise" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    TastyBytes Data Engineering Exercise
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Setup
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment Setup
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-create-a-snowflake-trial-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Create a Snowflake trial account
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-open-your-default-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Open your default workspace
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-run-01_setupsql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Run 01_setup.sql
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-upload-data-files-to-the-internal-stage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Upload data files to the internal stage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-run-02_dataloadsql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Run 02_dataload.sql
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-confirm-you-are-ready-for-task-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Confirm you are ready for Task 1
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exercises
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Exercises
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../exercises/00_background/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Background
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../exercises/01_module1_raw_to_staging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module 1 — Raw to Staging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../exercises/02_module2_staging_to_warehouse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module 2 — Staging to Warehouse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../exercises/03_module3_warehouse_to_product/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module 3 — Warehouse to Data Product
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Answers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Answers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_answer/model_answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scripts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Scripts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scripts/validate_exercise_instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scripts/test_incremental_load_instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Incremental Load Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-create-a-snowflake-trial-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Create a Snowflake trial account
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-open-your-default-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Open your default workspace
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-run-01_setupsql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Run 01_setup.sql
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-upload-data-files-to-the-internal-stage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Upload data files to the internal stage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-run-02_dataloadsql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Run 02_dataload.sql
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-confirm-you-are-ready-for-task-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Confirm you are ready for Task 1
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="environment-setup">Environment Setup<a class="headerlink" href="#environment-setup" title="Permanent link">&para;</a></h1>
+<p>Use this guide to create a Snowflake trial account and load the TastyBytes training environment.</p>
+<p>You need:</p>
+<ul>
+<li>A valid email address (no credit card)</li>
+<li>This <code>setup</code> folder (<code>01_setup.sql</code> and <code>02_dataload.sql</code>)</li>
+</ul>
+<p>After setup you will have:</p>
+<table>
+<thead>
+<tr>
+<th>Database</th>
+<th>Schemas</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TASTYBYTES_RAW</code></td>
+<td><code>RAW</code></td>
+<td>Landed source tables (read-only)</td>
+</tr>
+<tr>
+<td><code>TASTYBYTES_REFINED</code></td>
+<td><code>STAGING</code></td>
+<td>Staging tables</td>
+</tr>
+<tr>
+<td><code>TASTYBYTES_CONSUMPTION</code></td>
+<td><code>WAREHOUSE</code>, <code>ANALYTICS</code></td>
+<td>Dimensional model, reporting views</td>
+</tr>
+<tr>
+<td><code>TASTYBYTES_GOVERNANCE</code></td>
+<td><code>GOVERNANCE</code></td>
+<td>Tags and masking policies</td>
+</tr>
+</tbody>
+</table>
+<p>You will also have three roles (<code>TB_ADMIN</code>, <code>TB_DATA_ENGINEER</code>, <code>TB_ANALYST</code>) and two warehouses (<code>TB_DE_WH</code>, <code>TB_ANALYST_WH</code>).</p>
+<hr />
+<h2 id="1-create-a-snowflake-trial-account">1. Create a Snowflake trial account<a class="headerlink" href="#1-create-a-snowflake-trial-account" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Open <a href="https://signup.snowflake.com/">https://signup.snowflake.com/</a>.</li>
+<li>Sign up with Google, or enter:<ol>
+<li>First name</li>
+<li>Last name</li>
+<li>Work email</li>
+<li>Company name (use your organisation)</li>
+<li>Job title</li>
+</ol>
+</li>
+<li>Choose edition, cloud, and region. These cannot be changed later.<ol>
+<li><strong>Edition:</strong> Enterprise (the default, and what this course expects)</li>
+<li><strong>Cloud:</strong> Azure</li>
+<li><strong>Region:</strong> Azure Australia East</li>
+</ol>
+</li>
+<li>Accept the terms and select <strong>Sign up</strong>.</li>
+<li>Open the activation email from Snowflake and follow the link.</li>
+<li>Create your username and password, then select <strong>Get Started</strong>.</li>
+<li>Sign in at <a href="https://app.snowflake.com/">https://app.snowflake.com/</a>. You land in Snowsight.</li>
+</ol>
+<p>The trial lasts <strong>30 days</strong> or until the <strong>$400</strong> free credit balance is used, whichever comes first. No payment details are required.</p>
+<p>If the activation email does not arrive, check spam. Corporate mail filters sometimes block Snowflake. Request a new activation email from the signup or login page.</p>
+<hr />
+<h2 id="2-open-your-default-workspace">2. Open your default workspace<a class="headerlink" href="#2-open-your-default-workspace" title="Permanent link">&para;</a></h2>
+<p>Snowflake now uses <strong>Workspaces</strong> as the SQL editor. Each user gets a default workspace named <strong>My Workspace</strong>.</p>
+<ol>
+<li>In Snowsight, open <strong>Projects</strong> » <strong>Workspaces</strong>.</li>
+<li>If this is your first visit, Snowflake creates <strong>My Workspace</strong> automatically. Stay in that workspace.</li>
+</ol>
+<hr />
+<h2 id="3-run-01_setupsql">3. Run <code>01_setup.sql</code><a class="headerlink" href="#3-run-01_setupsql" title="Permanent link">&para;</a></h2>
+<p>This script creates four databases, four schemas, three roles (<code>TB_ADMIN</code>, <code>TB_DATA_ENGINEER</code>, <code>TB_ANALYST</code>), two warehouses (<code>TB_DE_WH</code>, <code>TB_ANALYST_WH</code>), governance tags, masking policies, an internal data load stage, empty RAW tables, and pre-populated staging/warehouse table DDL.</p>
+<ol>
+<li>In <strong>My Workspace</strong>, select <strong>+</strong> next to the workspace (or a folder) and choose <strong>SQL File</strong>.</li>
+<li>Name the file <code>01_setup.sql</code>.</li>
+<li>Confirm the context selector (top right of the editor) is set to:<ul>
+<li><strong>Role:</strong> <code>ACCOUNTADMIN</code></li>
+<li><strong>Warehouse:</strong> <code>COMPUTE_WH</code> (the trial default is fine for now)</li>
+</ul>
+</li>
+<li>Open <code>setup/01_setup.sql</code> from this course on your computer.</li>
+<li>Copy the <strong>entire</strong> file and paste it into the new SQL file in Snowsight.</li>
+<li>Confirm the role is still <code>ACCOUNTADMIN</code>.</li>
+<li>Select <strong>Run All</strong> (or press <strong>Cmd+Shift+Return</strong> on Mac / <strong>Ctrl+Shift+Enter</strong> on Windows).</li>
+</ol>
+<p>Wait until every statement finishes. This may take a few minutes</p>
+<p>The last query is a setup check. You should see <strong>PASS</strong> for:</p>
+<ul>
+<li>4 of 4 databases</li>
+<li>1 of 1 RAW schemas</li>
+<li>1 of 1 REFINED schemas</li>
+<li>2 of 2 CONSUMPTION schemas</li>
+<li>1 of 1 GOVERNANCE schemas</li>
+<li>9 of 9 RAW tables</li>
+<li>2 of 2 pre-populated staging tables</li>
+<li>2 of 2 pre-populated warehouse tables</li>
+<li>4 of 4 governance tags</li>
+</ul>
+<p>If any row is <strong>FAIL</strong>, do not continue. Re-run the script as <code>ACCOUNTADMIN</code>, or ask a facilitator.</p>
+<p><code>CREATE OR REPLACE DATABASE</code> drops and recreates those databases. Only run this on a trial account you created for the course.</p>
+<p>The setup script creates <code>TB_DE_WH</code> and <code>TB_ANALYST_WH</code>, and switches to <code>TB_ADMIN</code>. You still need <code>ACCOUNTADMIN</code> to start the script.</p>
+<hr />
+<h2 id="4-upload-data-files-to-the-internal-stage">4. Upload data files to the internal stage<a class="headerlink" href="#4-upload-data-files-to-the-internal-stage" title="Permanent link">&para;</a></h2>
+<p>The data files are in the <code>setup/data/</code> folder. Upload them to the internal stage using Snowsight.</p>
+<ol>
+<li>In Snowsight, navigate to <strong>Ingestion</strong> » <strong>Add Data</strong> » <strong>Load files into a Stage</strong>.</li>
+<li>Select database <strong>TASTYBYTES_RAW</strong>, schema <strong>RAW</strong>, and stage <strong>DATA_LOAD_STAGE</strong>.</li>
+<li>Upload all 9 CSV files from the <code>setup/data/</code> folder:</li>
+<li><code>country.csv</code></li>
+<li><code>customer_loyalty.csv</code></li>
+<li><code>franchise.csv</code></li>
+<li><code>location.csv</code></li>
+<li><code>menu.csv</code></li>
+<li><code>order_detail.csv</code></li>
+<li><code>order_header.csv</code></li>
+<li><code>truck.csv</code></li>
+<li><code>truck_reviews.csv</code></li>
+<li>Wait for all uploads to complete before proceeding.</li>
+</ol>
+<hr />
+<h2 id="5-run-02_dataloadsql">5. Run <code>02_dataload.sql</code><a class="headerlink" href="#5-run-02_dataloadsql" title="Permanent link">&para;</a></h2>
+<p>This script loads the uploaded CSV files from the internal stage into the RAW tables. The data already includes all workshop modifications (whitespace in customer cities, multilingual reviews) — no extra steps needed.</p>
+<ol>
+<li>In <strong>My Workspace</strong>, create another SQL file named <code>02_dataload.sql</code>.</li>
+<li>Copy the <strong>entire</strong> contents of <code>setup/02_dataload.sql</code> into that file.</li>
+<li>Leave the role as <code>ACCOUNTADMIN</code> (or switch to <code>TB_ADMIN</code> if you prefer — both work after setup).</li>
+<li>Select <strong>Run All</strong>.</li>
+</ol>
+<p>The last query lists row counts across all layers. Expected values:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Table</th>
+<th>Rows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RAW</td>
+<td><code>ORDER_DETAIL</code></td>
+<td>271,946</td>
+</tr>
+<tr>
+<td>RAW</td>
+<td><code>ORDER_HEADER</code></td>
+<td>100,000</td>
+</tr>
+<tr>
+<td>RAW</td>
+<td><code>CUSTOMER_LOYALTY</code></td>
+<td>3,988</td>
+</tr>
+<tr>
+<td>RAW</td>
+<td><code>LOCATION</code></td>
+<td>13,093</td>
+</tr>
+<tr>
+<td>RAW</td>
+<td><code>TRUCK_REVIEWS</code></td>
+<td>1,016</td>
+</tr>
+<tr>
+<td>RAW</td>
+<td><code>TRUCK</code></td>
+<td>450</td>
+</tr>
+<tr>
+<td>RAW</td>
+<td><code>FRANCHISE</code></td>
+<td>335</td>
+</tr>
+<tr>
+<td>RAW</td>
+<td><code>MENU</code></td>
+<td>100</td>
+</tr>
+<tr>
+<td>RAW</td>
+<td><code>COUNTRY</code></td>
+<td>30</td>
+</tr>
+<tr>
+<td>STAGING</td>
+<td><code>STG_COUNTRY</code></td>
+<td>30</td>
+</tr>
+<tr>
+<td>STAGING</td>
+<td><code>STG_LOCATION</code></td>
+<td>13,093</td>
+</tr>
+<tr>
+<td>WAREHOUSE</td>
+<td><code>DIM_DATE</code></td>
+<td>2,557</td>
+</tr>
+<tr>
+<td>WAREHOUSE</td>
+<td><code>DIM_LOCATION</code></td>
+<td>13,093</td>
+</tr>
+</tbody>
+</table>
+<p>If a <code>COPY INTO</code> fails, check that all files were uploaded to the correct stage, then re-run the failed statement.</p>
+<hr />
+<h2 id="6-confirm-you-are-ready-for-task-1">6. Confirm you are ready for Task 1<a class="headerlink" href="#6-confirm-you-are-ready-for-task-1" title="Permanent link">&para;</a></h2>
+<p>In a new SQL file, run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">USE</span><span class="w"> </span><span class="k">ROLE</span><span class="w"> </span><span class="n">TB_DATA_ENGINEER</span><span class="p">;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">USE</span><span class="w"> </span><span class="n">WAREHOUSE</span><span class="w"> </span><span class="n">TB_DE_WH</span><span class="p">;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">SHOW</span><span class="w"> </span><span class="n">TABLES</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">TASTYBYTES_RAW</span><span class="p">.</span><span class="n">RAW</span><span class="p">;</span>
+</code></pre></div>
+<p>You should see the nine RAW tables. You can now start <a href="../../exercises/01_module1_raw_to_staging/">Module 1: RAW to STAGING</a>.</p>
+<p>Do <strong>not</strong> create extra databases or schemas. Use the objects this setup created.</p>
+<p>For the exercise modules, use <code>TB_DATA_ENGINEER</code> and <code>TB_DE_WH</code> as your default role and warehouse. Switch to <code>TB_ADMIN</code> when applying governance tags. Switch to <code>TB_ANALYST</code> when validating masking. Size the warehouse up to <strong>LARGE</strong> when building the fact table, then size it back down so the trial credits last.</p>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Activation email never arrives</td>
+<td>Check spam; retry signup with the same email; ask IT to allow Snowflake mail</td>
+</tr>
+<tr>
+<td><code>Insufficient privileges</code> on <code>CREATE DATABASE</code></td>
+<td>Set the worksheet role to <code>ACCOUNTADMIN</code> and run again</td>
+</tr>
+<tr>
+<td>Setup check shows FAIL</td>
+<td>Re-run <code>01_setup.sql</code> as <code>ACCOUNTADMIN</code> from the top</td>
+</tr>
+<tr>
+<td>Cannot find <strong>Add Data</strong> menu</td>
+<td>In Snowsight, select <strong>Data</strong> in the left sidebar, then <strong>+ Data</strong> in the top-right</td>
+</tr>
+<tr>
+<td>File upload fails or times out</td>
+<td>Check your network connection and retry. Files are small (~27 MB total)</td>
+</tr>
+<tr>
+<td><code>COPY INTO</code> fails with file not found</td>
+<td>Verify the files were uploaded to the correct stage (<code>TASTYBYTES_RAW.RAW.DATA_LOAD_STAGE</code>)</td>
+</tr>
+<tr>
+<td>Warehouse will not start</td>
+<td>Resume <code>TB_DE_WH</code> or <code>COMPUTE_WH</code> from the context selector</td>
+</tr>
+</tbody>
+</table>
+<p>To reset a trial environment and start again, uncomment the <code>DROP</code> statements at the top of <code>01_setup.sql</code>, run them as <code>ACCOUNTADMIN</code>, then run both scripts from the beginning.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

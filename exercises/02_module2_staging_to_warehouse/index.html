@@ -1,0 +1,2109 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Hands-on Snowflake data engineering exercise — build a complete pipeline from raw data to reporting view.">
+      
+      
+      
+      
+        <link rel="prev" href="../01_module1_raw_to_staging/">
+      
+      
+        <link rel="next" href="../03_module3_warehouse_to_product/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Module 2 — Staging to Warehouse - TastyBytes Data Engineering Exercise</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="snowflake" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-2-staging-to-warehouse" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="TastyBytes Data Engineering Exercise" class="md-header__button md-logo" aria-label="TastyBytes Data Engineering Exercise" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TastyBytes Data Engineering Exercise
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Module 2 — Staging to Warehouse
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="TastyBytes Data Engineering Exercise" class="md-nav__button md-logo" aria-label="TastyBytes Data Engineering Exercise" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    TastyBytes Data Engineering Exercise
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Setup
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exercises
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Exercises
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00_background/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Background
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01_module1_raw_to_staging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module 1 — Raw to Staging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module 2 — Staging to Warehouse
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module 2 — Staging to Warehouse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Objective
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standards-and-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standards and Conventions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standards and Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#naming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Naming
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-and-column-comments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table and Column Comments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#surrogate-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Surrogate Keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata Columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scd-type-2-additional-columns-dim_menu-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SCD Type 2 Additional Columns (DIM_MENU only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scd-type-1-additional-columns-dim_customer-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SCD Type 1 Additional Columns (DIM_CUSTOMER only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#role-and-warehouse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Role and Warehouse
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concept-scd-type-1-vs-type-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concept: SCD Type 1 vs Type 2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-21-create-dim_menu-table-scd-type-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.1: Create DIM_MENU Table (SCD Type 2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-22-create-dim_customer-table-scd-type-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.2: Create DIM_CUSTOMER Table (SCD Type 1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-23-create-fact_order_line-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.3: Create FACT_ORDER_LINE Table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-24-apply-governance-tags-and-comments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.4: Apply Governance Tags and Comments
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 2.4: Apply Governance Tags and Comments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#table-level-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table-Level Tags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pii-column-tags-dim_customer-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PII Column Tags (DIM_CUSTOMER only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate-masking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validate Masking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-25-define-grants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.5: Define GRANTS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-26-create-dim_menu-load-procedure-scd-type-2-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.6: Create DIM_MENU Load Procedure (SCD Type 2 MERGE)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-27-create-dim_customer-load-procedure-scd-type-1-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.7: Create DIM_CUSTOMER Load Procedure (SCD Type 1 MERGE)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-28-create-fact_order_line-load-procedure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.8: Create FACT_ORDER_LINE Load Procedure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-29-create-task-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.9: Create Task Graph
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-210-execute-and-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.10: Execute and Validate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checkpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkpoint
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03_module3_warehouse_to_product/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module 3 — Warehouse to Data Product
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Answers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Answers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_answer/model_answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scripts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Scripts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scripts/validate_exercise_instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scripts/test_incremental_load_instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Incremental Load Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Objective
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standards-and-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standards and Conventions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standards and Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#naming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Naming
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-and-column-comments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table and Column Comments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#surrogate-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Surrogate Keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata Columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scd-type-2-additional-columns-dim_menu-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SCD Type 2 Additional Columns (DIM_MENU only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scd-type-1-additional-columns-dim_customer-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SCD Type 1 Additional Columns (DIM_CUSTOMER only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#role-and-warehouse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Role and Warehouse
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concept-scd-type-1-vs-type-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concept: SCD Type 1 vs Type 2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-21-create-dim_menu-table-scd-type-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.1: Create DIM_MENU Table (SCD Type 2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-22-create-dim_customer-table-scd-type-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.2: Create DIM_CUSTOMER Table (SCD Type 1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-23-create-fact_order_line-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.3: Create FACT_ORDER_LINE Table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-24-apply-governance-tags-and-comments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.4: Apply Governance Tags and Comments
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 2.4: Apply Governance Tags and Comments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#table-level-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table-Level Tags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pii-column-tags-dim_customer-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PII Column Tags (DIM_CUSTOMER only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate-masking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validate Masking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-25-define-grants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.5: Define GRANTS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-26-create-dim_menu-load-procedure-scd-type-2-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.6: Create DIM_MENU Load Procedure (SCD Type 2 MERGE)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-27-create-dim_customer-load-procedure-scd-type-1-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.7: Create DIM_CUSTOMER Load Procedure (SCD Type 1 MERGE)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-28-create-fact_order_line-load-procedure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.8: Create FACT_ORDER_LINE Load Procedure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-29-create-task-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.9: Create Task Graph
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-210-execute-and-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.10: Execute and Validate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checkpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkpoint
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="module-2-staging-to-warehouse">Module 2: STAGING to WAREHOUSE<a class="headerlink" href="#module-2-staging-to-warehouse" title="Permanent link">&para;</a></h1>
+<h2 id="objective">Objective<a class="headerlink" href="#objective" title="Permanent link">&para;</a></h2>
+<p>Create 2 dimension tables and 1 fact table in <code>TASTYBYTES_CONSUMPTION.WAREHOUSE</code>. Build MERGE-based stored procedures to load data from staging, and orchestrate them with a task graph. You will implement SCD Type 2 for <code>DIM_MENU</code> (tracking price history) and SCD Type 1 for <code>DIM_CUSTOMER</code> (overwrite on change).</p>
+<hr />
+<h2 id="standards-and-conventions">Standards and Conventions<a class="headerlink" href="#standards-and-conventions" title="Permanent link">&para;</a></h2>
+<h3 id="naming">Naming<a class="headerlink" href="#naming" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Dimension prefix:</strong> <code>DIM_</code> (e.g., <code>DIM_MENU</code>)</li>
+<li><strong>Fact prefix:</strong> <code>FACT_</code> (e.g., <code>FACT_ORDER_LINE</code>)</li>
+<li><strong>Procedure prefix:</strong> <code>SP_LOAD_</code> (e.g., <code>SP_LOAD_DIM_MENU</code>)</li>
+<li><strong>Task prefix:</strong> <code>TASK_LOAD_</code> (e.g., <code>TASK_LOAD_DIM_MENU</code>), root task: <code>TASK_WH_ROOT</code></li>
+</ul>
+<h3 id="table-and-column-comments">Table and Column Comments<a class="headerlink" href="#table-and-column-comments" title="Permanent link">&para;</a></h3>
+<p>Every table, view and column must have a COMMENT inline in the CREATE TABLE statement (Tasks 2.1 - 2.3). Table comments should describe the table's purpose. Column comments should describe the column's content.</p>
+<p>Syntax:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>CREATE OR REPLACE TABLE DIM_MENU (
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    MENU_ITEM_ID NUMBER COMMENT 'Unique identifier for the menu item',
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    MENU_ITEM_NAME VARCHAR COMMENT 'Display name of the menu item',
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    -- ... remaining columns with COMMENT ...
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>) COMMENT = 'SCD 2 for menu data. Source: TASTYBYTES_REFINED.STAGING.STG_MENU';
+</code></pre></div></p>
+<h3 id="surrogate-keys">Surrogate Keys<a class="headerlink" href="#surrogate-keys" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Column naming: <code>{TABLE_NAME}_SK</code> (e.g., <code>DIM_MENU_SK</code>)</li>
+<li>Generated using: <code>AUTOINCREMENT START 1 INCREMENT 1</code></li>
+</ul>
+<h3 id="metadata-columns">Metadata Columns<a class="headerlink" href="#metadata-columns" title="Permanent link">&para;</a></h3>
+<p>Every warehouse table must include:</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_DW_LOAD_TS</code></td>
+<td>TIMESTAMP_NTZ</td>
+<td><code>CURRENT_TIMESTAMP()</code> — when the row was first loaded</td>
+</tr>
+<tr>
+<td><code>_DW_UPDATE_TS</code></td>
+<td>TIMESTAMP_NTZ</td>
+<td><code>CURRENT_TIMESTAMP()</code> — when the row was last updated</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scd-type-2-additional-columns-dim_menu-only">SCD Type 2 Additional Columns (DIM_MENU only)<a class="headerlink" href="#scd-type-2-additional-columns-dim_menu-only" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VALID_FROM</code></td>
+<td>TIMESTAMP_NTZ</td>
+<td>Start of the record's validity period</td>
+</tr>
+<tr>
+<td><code>VALID_TO</code></td>
+<td>TIMESTAMP_NTZ</td>
+<td>End of validity. <code>'9999-12-31'</code> for current records</td>
+</tr>
+<tr>
+<td><code>IS_CURRENT</code></td>
+<td>BOOLEAN</td>
+<td><code>TRUE</code> for the active version of the record</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scd-type-1-additional-columns-dim_customer-only">SCD Type 1 Additional Columns (DIM_CUSTOMER only)<a class="headerlink" href="#scd-type-1-additional-columns-dim_customer-only" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IS_DELETED</code></td>
+<td>BOOLEAN</td>
+<td><code>TRUE</code> if the source record has been removed. Default <code>FALSE</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="role-and-warehouse">Role and Warehouse<a class="headerlink" href="#role-and-warehouse" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">USE</span><span class="w"> </span><span class="k">ROLE</span><span class="w"> </span><span class="n">TB_DATA_ENGINEER</span><span class="p">;</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">USE</span><span class="w"> </span><span class="n">WAREHOUSE</span><span class="w"> </span><span class="n">TB_DE_WH</span><span class="p">;</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">USE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">;</span>
+</code></pre></div>
+<hr />
+<h2 id="concept-scd-type-1-vs-type-2">Concept: SCD Type 1 vs Type 2<a class="headerlink" href="#concept-scd-type-1-vs-type-2" title="Permanent link">&para;</a></h2>
+<p>Before you start building, understand these two patterns:</p>
+<p><strong>SCD Type 1 (Overwrite):</strong> When a source attribute changes, the dimension record is updated in place. There is no history of previous values. Use this when historical tracking is not needed (e.g., a customer changes their city — we only care about the current city).</p>
+<p><strong>SCD Type 2 (History Tracking):</strong> When a tracked attribute changes, the current record is "closed" (VALID_TO set to the current timestamp, IS_CURRENT set to FALSE) and a new record is inserted with the updated values. This preserves the full history. Use this when you need to analyze data using the attribute values that were in effect at the time of a transaction (e.g., a menu item's price at the time it was sold).</p>
+<hr />
+<h2 id="task-21-create-dim_menu-table-scd-type-2">Task 2.1: Create DIM_MENU Table (SCD Type 2)<a class="headerlink" href="#task-21-create-dim_menu-table-scd-type-2" title="Permanent link">&para;</a></h2>
+<p>Create a dimension table for menu items that tracks changes over time.</p>
+<p><strong>DDL Requirements:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DIM_MENU_SK</td>
+<td>NUMBER AUTOINCREMENT</td>
+<td>Surrogate key</td>
+</tr>
+<tr>
+<td>MENU_ITEM_ID</td>
+<td>NUMBER</td>
+<td>Natural key (business key from source)</td>
+</tr>
+<tr>
+<td>MENU_ID</td>
+<td>NUMBER</td>
+<td></td>
+</tr>
+<tr>
+<td>MENU_TYPE_ID</td>
+<td>NUMBER</td>
+<td></td>
+</tr>
+<tr>
+<td>MENU_TYPE</td>
+<td>VARCHAR</td>
+<td></td>
+</tr>
+<tr>
+<td>TRUCK_BRAND_NAME</td>
+<td>VARCHAR</td>
+<td></td>
+</tr>
+<tr>
+<td>MENU_ITEM_NAME</td>
+<td>VARCHAR</td>
+<td><strong>Tracked for SCD2</strong></td>
+</tr>
+<tr>
+<td>ITEM_CATEGORY</td>
+<td>VARCHAR</td>
+<td><strong>Tracked for SCD2</strong></td>
+</tr>
+<tr>
+<td>ITEM_SUBCATEGORY</td>
+<td>VARCHAR</td>
+<td><strong>Tracked for SCD2</strong></td>
+</tr>
+<tr>
+<td>COST_OF_GOODS_USD</td>
+<td>NUMBER(10,2)</td>
+<td><strong>Tracked for SCD2</strong></td>
+</tr>
+<tr>
+<td>SALE_PRICE_USD</td>
+<td>NUMBER(10,2)</td>
+<td><strong>Tracked for SCD2</strong></td>
+</tr>
+<tr>
+<td>IS_DAIRY_FREE_FLAG</td>
+<td>BOOLEAN</td>
+<td></td>
+</tr>
+<tr>
+<td>IS_GLUTEN_FREE_FLAG</td>
+<td>BOOLEAN</td>
+<td></td>
+</tr>
+<tr>
+<td>IS_HEALTHY_FLAG</td>
+<td>BOOLEAN</td>
+<td></td>
+</tr>
+<tr>
+<td>IS_NUT_FREE_FLAG</td>
+<td>BOOLEAN</td>
+<td></td>
+</tr>
+<tr>
+<td>INGREDIENTS</td>
+<td>VARCHAR</td>
+<td></td>
+</tr>
+<tr>
+<td>VALID_FROM</td>
+<td>TIMESTAMP_NTZ</td>
+<td>SCD2: start of validity</td>
+</tr>
+<tr>
+<td>VALID_TO</td>
+<td>TIMESTAMP_NTZ</td>
+<td>SCD2: end of validity (<code>'9999-12-31'</code> for current)</td>
+</tr>
+<tr>
+<td>IS_CURRENT</td>
+<td>BOOLEAN</td>
+<td>SCD2: <code>TRUE</code> for active record</td>
+</tr>
+<tr>
+<td>_DW_LOAD_TS</td>
+<td>TIMESTAMP_NTZ</td>
+<td>Metadata</td>
+</tr>
+<tr>
+<td>_DW_UPDATE_TS</td>
+<td>TIMESTAMP_NTZ</td>
+<td>Metadata</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tracked columns</strong> — these are the columns that trigger a new SCD2 version when they change:
+<code>MENU_ITEM_NAME</code>, <code>ITEM_CATEGORY</code>, <code>ITEM_SUBCATEGORY</code>, <code>COST_OF_GOODS_USD</code>, <code>SALE_PRICE_USD</code></p>
+<hr />
+<h2 id="task-22-create-dim_customer-table-scd-type-1">Task 2.2: Create DIM_CUSTOMER Table (SCD Type 1)<a class="headerlink" href="#task-22-create-dim_customer-table-scd-type-1" title="Permanent link">&para;</a></h2>
+<p>Create a dimension table for customers using the overwrite pattern.</p>
+<p><strong>DDL Requirements:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DIM_CUSTOMER_SK</td>
+<td>NUMBER AUTOINCREMENT</td>
+<td>Surrogate key</td>
+</tr>
+<tr>
+<td>CUSTOMER_ID</td>
+<td>NUMBER</td>
+<td>Natural key</td>
+</tr>
+<tr>
+<td>FIRST_NAME</td>
+<td>VARCHAR</td>
+<td><strong>PII</strong></td>
+</tr>
+<tr>
+<td>LAST_NAME</td>
+<td>VARCHAR</td>
+<td><strong>PII</strong></td>
+</tr>
+<tr>
+<td>CITY</td>
+<td>VARCHAR</td>
+<td></td>
+</tr>
+<tr>
+<td>COUNTRY</td>
+<td>VARCHAR</td>
+<td></td>
+</tr>
+<tr>
+<td>POSTAL_CODE</td>
+<td>VARCHAR</td>
+<td></td>
+</tr>
+<tr>
+<td>PREFERRED_LANGUAGE</td>
+<td>VARCHAR</td>
+<td></td>
+</tr>
+<tr>
+<td>GENDER</td>
+<td>VARCHAR</td>
+<td></td>
+</tr>
+<tr>
+<td>FAVOURITE_BRAND</td>
+<td>VARCHAR</td>
+<td></td>
+</tr>
+<tr>
+<td>MARITAL_STATUS</td>
+<td>VARCHAR</td>
+<td></td>
+</tr>
+<tr>
+<td>CHILDREN_COUNT</td>
+<td>NUMBER</td>
+<td></td>
+</tr>
+<tr>
+<td>SIGN_UP_DATE</td>
+<td>DATE</td>
+<td></td>
+</tr>
+<tr>
+<td>BIRTHDAY_DATE</td>
+<td>DATE</td>
+<td><strong>PII</strong></td>
+</tr>
+<tr>
+<td>E_MAIL</td>
+<td>VARCHAR</td>
+<td><strong>PII</strong></td>
+</tr>
+<tr>
+<td>PHONE_NUMBER</td>
+<td>VARCHAR</td>
+<td><strong>PII</strong></td>
+</tr>
+<tr>
+<td>IS_DELETED</td>
+<td>BOOLEAN</td>
+<td>Default FALSE. Set TRUE if removed from source.</td>
+</tr>
+<tr>
+<td>_DW_LOAD_TS</td>
+<td>TIMESTAMP_NTZ</td>
+<td>Metadata</td>
+</tr>
+<tr>
+<td>_DW_UPDATE_TS</td>
+<td>TIMESTAMP_NTZ</td>
+<td>Metadata</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="task-23-create-fact_order_line-table">Task 2.3: Create FACT_ORDER_LINE Table<a class="headerlink" href="#task-23-create-fact_order_line-table" title="Permanent link">&para;</a></h2>
+<p>Create a fact table at the order line item grain. Each row represents one line item from an order, linked to all relevant dimensions via surrogate keys.</p>
+<p><strong>DDL Requirements:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ORDER_DETAIL_ID</td>
+<td>NUMBER</td>
+<td>Natural key (degenerate dimension)</td>
+</tr>
+<tr>
+<td>ORDER_ID</td>
+<td>NUMBER</td>
+<td>Degenerate dimension</td>
+</tr>
+<tr>
+<td>DIM_MENU_SK</td>
+<td>NUMBER</td>
+<td>FK to DIM_MENU (looked up at load time)</td>
+</tr>
+<tr>
+<td>DIM_CUSTOMER_SK</td>
+<td>NUMBER</td>
+<td>FK to DIM_CUSTOMER</td>
+</tr>
+<tr>
+<td>DIM_LOCATION_SK</td>
+<td>NUMBER</td>
+<td>FK to DIM_LOCATION (pre-created)</td>
+</tr>
+<tr>
+<td>DIM_DATE_SK</td>
+<td>NUMBER</td>
+<td>FK to DIM_DATE (pre-created)</td>
+</tr>
+<tr>
+<td>TRUCK_ID</td>
+<td>NUMBER</td>
+<td>Degenerate dimension</td>
+</tr>
+<tr>
+<td>DISCOUNT_ID</td>
+<td>VARCHAR</td>
+<td>Degenerate dimension</td>
+</tr>
+<tr>
+<td>ORDER_CHANNEL</td>
+<td>VARCHAR</td>
+<td></td>
+</tr>
+<tr>
+<td>LINE_NUMBER</td>
+<td>NUMBER</td>
+<td></td>
+</tr>
+<tr>
+<td>QUANTITY</td>
+<td>NUMBER</td>
+<td>Measure</td>
+</tr>
+<tr>
+<td>UNIT_PRICE</td>
+<td>NUMBER(10,2)</td>
+<td>Measure</td>
+</tr>
+<tr>
+<td>LINE_PRICE</td>
+<td>NUMBER(10,2)</td>
+<td>Measure (from ORDER_DETAIL.PRICE)</td>
+</tr>
+<tr>
+<td>COGS_AMOUNT</td>
+<td>NUMBER(10,2)</td>
+<td>Measure: <code>DIM_MENU.COST_OF_GOODS_USD * QUANTITY</code></td>
+</tr>
+<tr>
+<td>DISCOUNT_AMOUNT</td>
+<td>NUMBER(10,2)</td>
+<td>Measure (from ORDER_DETAIL.ORDER_ITEM_DISCOUNT_AMOUNT)</td>
+</tr>
+<tr>
+<td>ORDER_AMOUNT</td>
+<td>NUMBER(10,2)</td>
+<td>From ORDER_HEADER</td>
+</tr>
+<tr>
+<td>ORDER_TAX_AMOUNT</td>
+<td>NUMBER(10,2)</td>
+<td>From ORDER_HEADER</td>
+</tr>
+<tr>
+<td>ORDER_TOTAL</td>
+<td>NUMBER(10,2)</td>
+<td>From ORDER_HEADER</td>
+</tr>
+<tr>
+<td>_DW_LOAD_TS</td>
+<td>TIMESTAMP_NTZ</td>
+<td>Metadata</td>
+</tr>
+<tr>
+<td>_DW_UPDATE_TS</td>
+<td>TIMESTAMP_NTZ</td>
+<td>Metadata</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Important Notes:</strong>
+- <code>DIM_MENU_SK</code>: Look up the <strong>current</strong> menu dimension record (<code>IS_CURRENT = TRUE</code>) matching on <code>MENU_ITEM_ID</code>
+- <code>DIM_CUSTOMER_SK</code>: Look up from DIM_CUSTOMER matching on <code>CUSTOMER_ID</code>
+- <code>DIM_LOCATION_SK</code>: Look up from the pre-created <code>DIM_LOCATION</code> matching on the <code>LOCATION_ID</code> from <code>STG_ORDER_HEADER</code>
+- <code>DIM_DATE_SK</code>: Look up from the pre-created <code>DIM_DATE</code> matching on <code>ORDER_TS::DATE</code> from <code>STG_ORDER_HEADER</code>
+- <code>COGS_AMOUNT</code>: Calculated at load time as <code>DIM_MENU.COST_OF_GOODS_USD * STG_ORDER_DETAIL.QUANTITY</code></p>
+<p><strong>Hint:</strong> The fact load procedure will need to join multiple tables:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>STG_ORDER_DETAIL
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  JOIN STG_ORDER_HEADER ON ORDER_ID
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  JOIN DIM_MENU ON MENU_ITEM_ID (WHERE IS_CURRENT = TRUE)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  JOIN DIM_CUSTOMER ON CUSTOMER_ID
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  JOIN DIM_LOCATION ON LOCATION_ID
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  JOIN DIM_DATE ON ORDER_TS::DATE = DATE_VALUE (or equivalent)
+</code></pre></div></p>
+<hr />
+<h2 id="task-24-apply-governance-tags-and-comments">Task 2.4: Apply Governance Tags and Comments<a class="headerlink" href="#task-24-apply-governance-tags-and-comments" title="Permanent link">&para;</a></h2>
+<p>Apply tags to all 3 warehouse tables.</p>
+<h3 id="table-level-tags">Table-Level Tags<a class="headerlink" href="#table-level-tags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>DATA_DOMAIN</th>
+<th>DATA_CLASSIFICATION</th>
+<th>COST_CENTER</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DIM_MENU</td>
+<td><code>'Product'</code></td>
+<td><code>'Internal'</code></td>
+<td><code>'TASTYBYTES'</code></td>
+</tr>
+<tr>
+<td>DIM_CUSTOMER</td>
+<td><code>'Customer'</code></td>
+<td><code>'Restricted'</code></td>
+<td><code>'TASTYBYTES'</code></td>
+</tr>
+<tr>
+<td>FACT_ORDER_LINE</td>
+<td><code>'Sales'</code></td>
+<td><code>'Internal'</code></td>
+<td><code>'TASTYBYTES'</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="pii-column-tags-dim_customer-only">PII Column Tags (DIM_CUSTOMER only)<a class="headerlink" href="#pii-column-tags-dim_customer-only" title="Permanent link">&para;</a></h3>
+<p>Apply the same <code>TASTY_PII</code> tags as in Module 1:</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Tag Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FIRST_NAME</td>
+<td><code>'NAME'</code></td>
+</tr>
+<tr>
+<td>LAST_NAME</td>
+<td><code>'NAME'</code></td>
+</tr>
+<tr>
+<td>E_MAIL</td>
+<td><code>'EMAIL'</code></td>
+</tr>
+<tr>
+<td>PHONE_NUMBER</td>
+<td><code>'PHONE_NUMBER'</code></td>
+</tr>
+<tr>
+<td>BIRTHDAY_DATE</td>
+<td><code>'BIRTHDAY'</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="validate-masking">Validate Masking<a class="headerlink" href="#validate-masking" title="Permanent link">&para;</a></h3>
+<p>Switch to <code>TB_ANALYST</code> and verify PII is masked:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">USE</span><span class="w"> </span><span class="k">ROLE</span><span class="w"> </span><span class="n">TB_ANALYST</span><span class="p">;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">FIRST_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">LAST_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">E_MAIL</span><span class="p">,</span><span class="w"> </span><span class="n">PHONE_NUMBER</span><span class="p">,</span><span class="w"> </span><span class="n">BIRTHDAY_DATE</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">DIM_CUSTOMER</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1">-- Expected: All values show '**MASKED**' or '1900-01-01'</span>
+</code></pre></div></p>
+<p>Switch back when done:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">USE</span><span class="w"> </span><span class="k">ROLE</span><span class="w"> </span><span class="n">TB_DATA_ENGINEER</span><span class="p">;</span>
+</code></pre></div></p>
+<hr />
+<h2 id="task-25-define-grants">Task 2.5: Define GRANTS<a class="headerlink" href="#task-25-define-grants" title="Permanent link">&para;</a></h2>
+<p>Grant access to full access to <code>TB_DATA_ENGINEER</code> and <strong>SELECT</strong> access to <code>TB_ANALYST</code> on the new DIM and FACT tables:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">-- TB_DATA_ENGINEER: full access</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">GRANT</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">&lt;</span><span class="k">TABLE_NAME</span><span class="o">&gt;</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="k">ROLE</span><span class="w"> </span><span class="o">&lt;</span><span class="n">ROLE_NAME</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1">-- TB_ANALYST: read-only</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">GRANT</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">&lt;</span><span class="k">TABLE_NAME</span><span class="o">&gt;</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="k">ROLE</span><span class="w"> </span><span class="o">&lt;</span><span class="n">ROLE_NAME</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-26-create-dim_menu-load-procedure-scd-type-2-merge">Task 2.6: Create DIM_MENU Load Procedure (SCD Type 2 MERGE)<a class="headerlink" href="#task-26-create-dim_menu-load-procedure-scd-type-2-merge" title="Permanent link">&para;</a></h2>
+<p>Create a stored procedure that implements SCD Type 2 logic using MERGE.</p>
+<p><strong>Procedure name:</strong> <code>SP_LOAD_DIM_MENU</code></p>
+<p><strong>Logic:</strong>
+1. <strong>Match</strong> source records (from <code>STG_MENU</code>) to existing current records (from <code>DIM_MENU WHERE IS_CURRENT = TRUE</code>) on the natural key (<code>MENU_ITEM_ID</code>)
+2. <strong>When matched AND a tracked column has changed:</strong>
+   - Update the existing record: set <code>VALID_TO = CURRENT_TIMESTAMP()</code>, <code>IS_CURRENT = FALSE</code>, <code>_DW_UPDATE_TS = CURRENT_TIMESTAMP()</code>
+3. <strong>After the MERGE</strong>, insert new current records for all changed rows:
+   - <code>VALID_FROM = CURRENT_TIMESTAMP()</code>, <code>VALID_TO = '9999-12-31'</code>, <code>IS_CURRENT = TRUE</code>
+4. <strong>When not matched</strong> (new menu items):
+   - Insert with <code>VALID_FROM = CURRENT_TIMESTAMP()</code>, <code>VALID_TO = '9999-12-31'</code>, <code>IS_CURRENT = TRUE</code></p>
+<p><strong>Tracked columns</strong> (detect changes on these):
+- <code>MENU_ITEM_NAME</code>
+- <code>ITEM_CATEGORY</code>
+- <code>ITEM_SUBCATEGORY</code>
+- <code>COST_OF_GOODS_USD</code>
+- <code>SALE_PRICE_USD</code></p>
+<p><strong>Hint:</strong> SCD Type 2 with MERGE can be complex. One approach is:
+1. First MERGE to close changed records (UPDATE IS_CURRENT = FALSE)
+2. Then INSERT new versions for those changed records
+3. Also INSERT brand-new records that didn't exist before</p>
+<p>Alternatively, use a single MERGE with a multi-table INSERT pattern. Choose whichever approach you're most comfortable with.</p>
+<p><strong>Validation:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">-- After initial load: all records should be current</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">IS_CURRENT</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">DIM_MENU</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">IS_CURRENT</span><span class="p">;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1">-- Expected: TRUE = 100</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1">-- VALID_TO should be '9999-12-31' for all current records</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">DIM_MENU</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">IS_CURRENT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">TRUE</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">VALID_TO</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s1">'9999-12-31'</span><span class="p">;</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1">-- Expected: 0</span>
+</code></pre></div></p>
+<hr />
+<h2 id="task-27-create-dim_customer-load-procedure-scd-type-1-merge">Task 2.7: Create DIM_CUSTOMER Load Procedure (SCD Type 1 MERGE)<a class="headerlink" href="#task-27-create-dim_customer-load-procedure-scd-type-1-merge" title="Permanent link">&para;</a></h2>
+<p>Create a stored procedure that implements SCD Type 1 logic.</p>
+<p><strong>Procedure name:</strong> <code>SP_LOAD_DIM_CUSTOMER</code></p>
+<p><strong>Logic:</strong>
+1. <strong>MERGE</strong> source records (from <code>STG_CUSTOMER_LOYALTY</code>) with target (<code>DIM_CUSTOMER</code>) on <code>CUSTOMER_ID</code>
+2. <strong>When matched AND any column has changed:</strong> UPDATE all columns, set <code>_DW_UPDATE_TS = CURRENT_TIMESTAMP()</code>
+3. <strong>When not matched:</strong> INSERT the new record with <code>IS_DELETED = FALSE</code>
+4. <strong>Soft-delete:</strong> After the MERGE, update <code>IS_DELETED = TRUE</code> for any <code>DIM_CUSTOMER</code> records whose <code>CUSTOMER_ID</code> no longer exists in <code>STG_CUSTOMER_LOYALTY</code></p>
+<p><strong>Validation:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">DIM_CUSTOMER</span><span class="p">;</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="c1">-- Expected: 222,540</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">DIM_CUSTOMER</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">IS_DELETED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">TRUE</span><span class="p">;</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1">-- Expected: 0 (initial load — no deletes yet)</span>
+</code></pre></div></p>
+<hr />
+<h2 id="task-28-create-fact_order_line-load-procedure">Task 2.8: Create FACT_ORDER_LINE Load Procedure<a class="headerlink" href="#task-28-create-fact_order_line-load-procedure" title="Permanent link">&para;</a></h2>
+<p>Create a stored procedure that loads the fact table using MERGE.</p>
+<p><strong>Procedure name:</strong> <code>SP_LOAD_FACT_ORDER_LINE</code></p>
+<p><strong>Logic:</strong>
+1. <strong>MERGE</strong> on <code>ORDER_DETAIL_ID</code> (natural key)
+2. <strong>When not matched:</strong> INSERT with surrogate key lookups from all 4 dimensions
+3. <strong>When matched:</strong> UPDATE measures if they have changed (handles corrections)</p>
+<p><strong>Surrogate key lookups:</strong>
+- <code>DIM_MENU_SK</code> from <code>DIM_MENU WHERE MENU_ITEM_ID = STG_ORDER_DETAIL.MENU_ITEM_ID AND IS_CURRENT = TRUE</code>
+- <code>DIM_CUSTOMER_SK</code> from <code>DIM_CUSTOMER WHERE CUSTOMER_ID = STG_ORDER_HEADER.CUSTOMER_ID AND IS_DELETED = FALSE</code>
+- <code>DIM_LOCATION_SK</code> from <code>DIM_LOCATION WHERE LOCATION_ID = STG_ORDER_HEADER.LOCATION_ID</code>
+- <code>DIM_DATE_SK</code> from <code>DIM_DATE WHERE DATE_VALUE = STG_ORDER_HEADER.ORDER_TS::DATE</code> (check the actual column name in the pre-created DIM_DATE)</p>
+<p><strong>COGS Calculation:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">DIM_MENU</span><span class="p">.</span><span class="n">COST_OF_GOODS_USD</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">STG_ORDER_DETAIL</span><span class="p">.</span><span class="n">QUANTITY</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">COGS_AMOUNT</span>
+</code></pre></div></p>
+<p><strong>Note:</strong> Review the pre-created <code>DIM_LOCATION</code> and <code>DIM_DATE</code> tables to understand their key column names:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">DESCRIBE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">DIM_LOCATION</span><span class="p">;</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">DESCRIBE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">DIM_DATE</span><span class="p">;</span>
+</code></pre></div></p>
+<p><strong>Validation:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1">-- Row count</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">FACT_ORDER_LINE</span><span class="p">;</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1">-- Verify COGS calculation</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="k">SELECT</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="n">f</span><span class="p">.</span><span class="n">ORDER_DETAIL_ID</span><span class="p">,</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="n">f</span><span class="p">.</span><span class="n">QUANTITY</span><span class="p">,</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span><span class="n">f</span><span class="p">.</span><span class="n">COGS_AMOUNT</span><span class="p">,</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">  </span><span class="n">m</span><span class="p">.</span><span class="n">COST_OF_GOODS_USD</span><span class="p">,</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">  </span><span class="n">m</span><span class="p">.</span><span class="n">COST_OF_GOODS_USD</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">QUANTITY</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">expected_cogs</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">FACT_ORDER_LINE</span><span class="w"> </span><span class="n">f</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="k">JOIN</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">DIM_MENU</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">DIM_MENU_SK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">DIM_MENU_SK</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="c1">-- COGS_AMOUNT should match expected_cogs</span>
+</code></pre></div></p>
+<hr />
+<h2 id="task-29-create-task-graph">Task 2.9: Create Task Graph<a class="headerlink" href="#task-29-create-task-graph" title="Permanent link">&para;</a></h2>
+<p>Create a task graph for the warehouse load procedures.</p>
+<p><strong>Task Graph Structure:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>TASK_WH_ROOT (root — manual trigger)
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  ├── TASK_LOAD_DIM_MENU (runs after root)
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  ├── TASK_LOAD_DIM_CUSTOMER (runs after root)
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>  └── TASK_LOAD_FACT_ORDER_LINE (runs after DIM_MENU AND DIM_CUSTOMER)
+</code></pre></div></p>
+<p><strong>Important:</strong> <code>TASK_LOAD_FACT_ORDER_LINE</code> must depend on BOTH dimension tasks completing, because the fact load needs to look up surrogate keys from the dimension tables.</p>
+<p><strong>Syntax for multi-dependency:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="n">TASK</span><span class="w"> </span><span class="o">&lt;</span><span class="k">DATABASE</span><span class="p">.</span><span class="k">SCHEMA</span><span class="p">.</span><span class="n">TASK_NAME_3</span><span class="o">&gt;</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="n">WAREHOUSE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TB_DE_WH</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="k">AFTER</span><span class="w"> </span><span class="o">&lt;</span><span class="k">DATABASE</span><span class="p">.</span><span class="k">SCHEMA</span><span class="p">.</span><span class="n">TASK_NAME_1</span><span class="o">&gt;</span><span class="p">,</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">        </span><span class="o">&lt;</span><span class="k">DATABASE</span><span class="p">.</span><span class="k">SCHEMA</span><span class="p">.</span><span class="n">TASK_NAME_2</span><span class="o">&gt;</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="k">AS</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="k">CALL</span><span class="w"> </span><span class="o">&lt;</span><span class="k">DATABASE</span><span class="p">.</span><span class="k">SCHEMA</span><span class="p">.</span><span class="n">STORED_PROCEDURE_NAME</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div></p>
+<p>Resume all tasks (children first, then root):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">ALTER</span><span class="w"> </span><span class="n">TASK</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">TASK_LOAD_DIM_MENU</span><span class="w"> </span><span class="n">RESUME</span><span class="p">;</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">ALTER</span><span class="w"> </span><span class="n">TASK</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">TASK_LOAD_DIM_CUSTOMER</span><span class="w"> </span><span class="n">RESUME</span><span class="p">;</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="k">ALTER</span><span class="w"> </span><span class="n">TASK</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">TASK_LOAD_FACT_ORDER_LINE</span><span class="w"> </span><span class="n">RESUME</span><span class="p">;</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="k">ALTER</span><span class="w"> </span><span class="n">TASK</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">TASK_WH_ROOT</span><span class="w"> </span><span class="n">RESUME</span><span class="p">;</span>
+</code></pre></div></p>
+<hr />
+<h2 id="task-210-execute-and-validate">Task 2.10: Execute and Validate<a class="headerlink" href="#task-210-execute-and-validate" title="Permanent link">&para;</a></h2>
+<p>Execute the warehouse task graph and validate results.</p>
+<p><strong>Execute:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">EXECUTE</span><span class="w"> </span><span class="n">TASK</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">TASK_WH_ROOT</span><span class="p">;</span>
+</code></pre></div></p>
+<p><strong>Note:</strong> The fact table load will take some time due to the large number of rows and multi-table joins. Monitor progress using task history.</p>
+<p><strong>Validation queries:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1">-- 1. Dimension row counts</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="s1">'DIM_MENU'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">table_name</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">row_count</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">DIM_MENU</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">IS_CURRENT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">TRUE</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="k">SELECT</span><span class="w"> </span><span class="s1">'DIM_CUSTOMER'</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">DIM_CUSTOMER</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">IS_DELETED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">FALSE</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="k">SELECT</span><span class="w"> </span><span class="s1">'FACT_ORDER_LINE'</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">FACT_ORDER_LINE</span><span class="p">;</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="c1">-- 2. No NULL surrogate keys in fact table</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="k">SELECT</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">  </span><span class="n">COUNT_IF</span><span class="p">(</span><span class="n">DIM_MENU_SK</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">null_menu</span><span class="p">,</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">  </span><span class="n">COUNT_IF</span><span class="p">(</span><span class="n">DIM_CUSTOMER_SK</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">null_customer</span><span class="p">,</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">  </span><span class="n">COUNT_IF</span><span class="p">(</span><span class="n">DIM_LOCATION_SK</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">null_location</span><span class="p">,</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">  </span><span class="n">COUNT_IF</span><span class="p">(</span><span class="n">DIM_DATE_SK</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">null_date</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">FACT_ORDER_LINE</span><span class="p">;</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="c1">-- Expected: all 0</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="c1">-- 3. Revenue sanity check</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">w</span><span class="p">.</span><span class="n">total_revenue_warehouse</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">total_revenue_staging</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">SUM</span><span class="p">(</span><span class="n">LINE_PRICE</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total_revenue_warehouse</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_CONSUMPTION</span><span class="p">.</span><span class="n">WAREHOUSE</span><span class="p">.</span><span class="n">FACT_ORDER_LINE</span><span class="p">)</span><span class="w"> </span><span class="n">w</span><span class="p">,</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="w">     </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">SUM</span><span class="p">(</span><span class="n">PRICE</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total_revenue_staging</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TASTYBYTES_REFINED</span><span class="p">.</span><span class="n">STAGING</span><span class="p">.</span><span class="n">STG_ORDER_DETAIL</span><span class="p">)</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+</code></pre></div></p>
+<hr />
+<h2 id="checkpoint">Checkpoint<a class="headerlink" href="#checkpoint" title="Permanent link">&para;</a></h2>
+<p>Before moving to Module 3, verify:</p>
+<ul>
+<li>[ ] DIM_MENU has 100 current records with correct SCD2 columns</li>
+<li>[ ] DIM_CUSTOMER has 222,540 records with IS_DELETED = FALSE</li>
+<li>[ ] FACT_ORDER_LINE row count matches STG_ORDER_DETAIL</li>
+<li>[ ] No NULL surrogate keys in the fact table</li>
+<li>[ ] COGS_AMOUNT matches COST_OF_GOODS_USD * QUANTITY for all rows</li>
+<li>[ ] All tables have governance tags and comments</li>
+<li>[ ] PII columns on DIM_CUSTOMER are tagged and masked for TB_ANALYST</li>
+<li>[ ] All 3 load procedures exist and execute successfully</li>
+<li>[ ] TB_DATA_ENGINEER has full access to all warehouse tables</li>
+<li>[ ] TB_ANALYST has SELECT on all warehouse tables</li>
+<li>[ ] Task graph runs end-to-end without errors</li>
+<li>[ ] Revenue totals match between fact table and staging</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
