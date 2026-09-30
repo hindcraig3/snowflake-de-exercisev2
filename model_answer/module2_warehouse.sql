@@ -90,9 +90,7 @@ CREATE OR REPLACE TABLE FACT_ORDER_LINE (
 
 -- =============================================================
 -- Task 2.4: Apply governance tags (table-level)
--- Requires TB_ADMIN role
 -- =============================================================
-USE ROLE TB_ADMIN;
 
 ALTER TABLE TASTYBYTES_CONSUMPTION.WAREHOUSE.DIM_MENU
   SET TAG TASTYBYTES_GOVERNANCE.GOVERNANCE.DATA_DOMAIN = 'Product',

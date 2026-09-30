@@ -29,15 +29,27 @@ Every staging table must include these columns at the end:
 - Preserve NULLs — do not replace them with default values unless explicitly stated
 - Fix data type mismatches using `TRY_CAST()` or `CAST()` as appropriate
 
+### Table and Column Comments
+
+Every table, view and coloumn must have a `COMMENT` **inline in the CREATE TABLE statement** (Tasks 1.2-1.5). Table comments should describe the table's purpose. Column comments should describe the column's content.
+
+**Syntax:**
+```sql
+CREATE OR REPLACE TABLE STG_MENU (
+    MENU_ITEM_ID NUMBER COMMENT 'Unique identifier for the menu item',
+    MENU_ITEM_NAME VARCHAR COMMENT 'Display name of the menu item',
+    -- ... remaining columns with COMMENT ...
+    _LOAD_TS TIMESTAMP_NTZ COMMENT 'Timestamp when the row was loaded into staging'
+) COMMENT = 'Staged menu items with flattened health metrics. Source: TASTYBYTES_RAW.RAW.MENU';
+```
+---
+
+
 ### Role and Warehouse
 ```sql
 USE ROLE TB_DATA_ENGINEER;
 USE WAREHOUSE TB_DE_WH;
 USE SCHEMA TASTYBYTES_REFINED.STAGING;
-```
-For governance tasks (applying tags), switch to:
-```sql
-USE ROLE TB_ADMIN;
 ```
 
 ---
@@ -62,6 +74,8 @@ Before building anything, explore the source data to understand the structure an
    - Semi-structured data (VARIANT columns)
 
 **Expected findings:**
+
+**NOTE:** You need to implement code in your load procedures to address these issues (**Task 1.8**)
 
 | Table | Column | Issue |
 |-------|--------|-------|
@@ -252,11 +266,7 @@ SELECT COUNT(*) FROM TASTYBYTES_REFINED.STAGING.STG_CUSTOMER_LOYALTY;
 
 ## Task 1.6: Apply Governance Tags and Comments
 
-Apply enterprise tags and comments to all 4 staging tables. You will need to switch to the `TB_ADMIN` role for this task.
-
-```sql
-USE ROLE TB_ADMIN;
-```
+Apply enterprise tags and comments to all 4 staging tables.
 
 ### Table-Level Tags
 
@@ -295,21 +305,7 @@ ALTER TABLE TASTYBYTES_REFINED.STAGING.STG_CUSTOMER_LOYALTY
   ALTER COLUMN FIRST_NAME SET TAG TASTYBYTES_GOVERNANCE.GOVERNANCE.TASTY_PII = 'NAME';
 ```
 
-### Table and Column Comments
 
-Add a `COMMENT` to every table and every column **inline in the CREATE TABLE statement** (Tasks 1.2-1.5). Table comments should describe the table's purpose. Column comments should describe the column's content.
-
-**Syntax:**
-```sql
-CREATE OR REPLACE TABLE STG_MENU (
-    MENU_ITEM_ID NUMBER COMMENT 'Unique identifier for the menu item',
-    MENU_ITEM_NAME VARCHAR COMMENT 'Display name of the menu item',
-    -- ... remaining columns with COMMENT ...
-    _LOAD_TS TIMESTAMP_NTZ COMMENT 'Timestamp when the row was loaded into staging'
-) COMMENT = 'Staged menu items with flattened health metrics. Source: TASTYBYTES_RAW.RAW.MENU';
-```
-
-**Note:** Define comments when you create the table, not as separate `COMMENT ON` statements afterwards. The `COMMENT` keyword goes after the column type, and `COMMENT =` goes after the closing parenthesis for the table-level comment.
 
 ### Validate Masking
 
@@ -335,13 +331,11 @@ Grant appropriate access on all staging objects to `TB_DATA_ENGINEER`. Run these
 
 ```sql
 -- Grant usage on the schema (if not already granted by setup)
-GRANT USAGE ON SCHEMA TASTYBYTES_REFINED.STAGING TO ROLE TB_DATA_ENGINEER;
+GRANT USAGE ON SCHEMA <SCHEMA_NAME> TO ROLE <ROLE_NAME>;
 
 -- Grant ownership or all privileges on each staging table
-GRANT ALL ON TABLE TASTYBYTES_REFINED.STAGING.STG_MENU TO ROLE TB_DATA_ENGINEER;
-GRANT ALL ON TABLE TASTYBYTES_REFINED.STAGING.STG_ORDER_HEADER TO ROLE TB_DATA_ENGINEER;
-GRANT ALL ON TABLE TASTYBYTES_REFINED.STAGING.STG_ORDER_DETAIL TO ROLE TB_DATA_ENGINEER;
-GRANT ALL ON TABLE TASTYBYTES_REFINED.STAGING.STG_CUSTOMER_LOYALTY TO ROLE TB_DATA_ENGINEER;
+GRANT ALL ON TABLE <TABLE_NAME> TO ROLE <ROLE_NAME>;
+
 ```
 
 **Note:** `TB_ANALYST` should NOT have access to staging tables. Do not grant any privileges to `TB_ANALYST` on this schema.
@@ -355,8 +349,9 @@ Create one stored procedure per staging table using the TRUNCATE-reload pattern.
 **Requirements:**
 - Language: `LANGUAGE SQL`
 - Execute as: `EXECUTE AS CALLER`
-- Naming: `SP_LOAD_STG_MENU`, `SP_LOAD_STG_ORDER_HEADER`, `SP_LOAD_STG_ORDER_DETAIL`, `SP_LOAD_STG_CUSTOMER_LOYALTY`
+- Naming: `SP_LOAD_<TABLE_NAME>`
 - Schema: `TASTYBYTES_REFINED.STAGING`
+- Comment: Add a comment that explains the purpose of the stored procedure
 - Return: A status message (VARCHAR) indicating success and row count
 
 **Pattern:**
@@ -364,6 +359,7 @@ Create one stored procedure per staging table using the TRUNCATE-reload pattern.
 CREATE OR REPLACE PROCEDURE TASTYBYTES_REFINED.STAGING.SP_LOAD_STG_MENU()
   RETURNS VARCHAR
   LANGUAGE SQL
+  COMMENT = 'Loads data from RAW MENU table to STG_MENU table'
   EXECUTE AS CALLER
 AS
 BEGIN
@@ -406,14 +402,14 @@ TASK_STG_ROOT (root — scheduled or manual trigger)
 **Requirements:**
 - All tasks in schema `TASTYBYTES_REFINED.STAGING`
 - Warehouse: `TB_DE_WH`
-- Root task schedule: no automatic schedule (manual execution only for this exercise)
+- Root task schedule: 24 HOURS (NOTE: for the exercise you will manual trigger the Tasks)
 - `TASK_LOAD_STG_ORDER_DETAIL` depends on `TASK_LOAD_STG_ORDER_HEADER` completing first
 
 **Syntax for root task:**
 ```sql
 CREATE OR REPLACE TASK TASTYBYTES_REFINED.STAGING.TASK_STG_ROOT
   WAREHOUSE = TB_DE_WH
-  SCHEDULE = 'USING CRON 0 0 31 2 * UTC'  -- Never auto-runs (Feb 31 doesn't exist)
+  SCHEDULE = '24 HOURS'
 AS
   SELECT 1;  -- No-op root task
 ```
@@ -450,6 +446,12 @@ EXECUTE TASK TASTYBYTES_REFINED.STAGING.TASK_STG_ROOT;
 ```
 
 **Monitor progress:**
+
+You can either navigate to the Task in Snowsight by following this path:
+
+Catalog --> Explorer --> Databases --> TASTYBYTES_REFINED --> STAGING --> TASKS --> TASK_STG_ROOT
+
+or use SQL in a worksheet:
 ```sql
 -- Check task run status (wait a minute for tasks to complete)
 SELECT NAME, STATE, SCHEDULED_TIME, COMPLETED_TIME, ERROR_MESSAGE

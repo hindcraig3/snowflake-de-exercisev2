@@ -14,6 +14,18 @@ Create 2 dimension tables and 1 fact table in `TASTYBYTES_CONSUMPTION.WAREHOUSE`
 - **Procedure prefix:** `SP_LOAD_` (e.g., `SP_LOAD_DIM_MENU`)
 - **Task prefix:** `TASK_LOAD_` (e.g., `TASK_LOAD_DIM_MENU`), root task: `TASK_WH_ROOT`
 
+### Table and Column Comments
+Every table, view and coloumn must have a COMMENT inline in the CREATE TABLE statement (Tasks 1.2-1.5). Table comments should describe the table's purpose. Column comments should describe the column's content.
+
+Syntax:
+```
+CREATE OR REPLACE TABLE DIM_MENU (
+    MENU_ITEM_ID NUMBER COMMENT 'Unique identifier for the menu item',
+    MENU_ITEM_NAME VARCHAR COMMENT 'Display name of the menu item',
+    -- ... remaining columns with COMMENT ...
+) COMMENT = 'SCD 2 for menu data. Source: TASTYBYTES_REFINED.STAGING.STG_MENU';
+```
+
 ### Surrogate Keys
 - Column naming: `{TABLE_NAME}_SK` (e.g., `DIM_MENU_SK`)
 - Generated using: `AUTOINCREMENT START 1 INCREMENT 1`
@@ -92,15 +104,6 @@ Create a dimension table for menu items that tracks changes over time.
 **Tracked columns** — these are the columns that trigger a new SCD2 version when they change:
 `MENU_ITEM_NAME`, `ITEM_CATEGORY`, `ITEM_SUBCATEGORY`, `COST_OF_GOODS_USD`, `SALE_PRICE_USD`
 
-**Validation:**
-```sql
--- After initial load, expect 100 current records
-SELECT COUNT(*) AS current_records
-FROM TASTYBYTES_CONSUMPTION.WAREHOUSE.DIM_MENU
-WHERE IS_CURRENT = TRUE;
--- Expected: 100
-```
-
 ---
 
 ## Task 2.2: Create DIM_CUSTOMER Table (SCD Type 1)
@@ -130,12 +133,6 @@ Create a dimension table for customers using the overwrite pattern.
 | IS_DELETED | BOOLEAN | Default FALSE. Set TRUE if removed from source. |
 | _DW_LOAD_TS | TIMESTAMP_NTZ | Metadata |
 | _DW_UPDATE_TS | TIMESTAMP_NTZ | Metadata |
-
-**Validation:**
-```sql
-SELECT COUNT(*) FROM TASTYBYTES_CONSUMPTION.WAREHOUSE.DIM_CUSTOMER;
--- Expected: 222,540 rows
-```
 
 ---
 
@@ -185,26 +182,11 @@ STG_ORDER_DETAIL
   JOIN DIM_DATE ON ORDER_TS::DATE = DATE_VALUE (or equivalent)
 ```
 
-**Validation:**
-```sql
--- Row count should match STG_ORDER_DETAIL
-SELECT COUNT(*) FROM TASTYBYTES_CONSUMPTION.WAREHOUSE.FACT_ORDER_LINE;
-
--- No NULL surrogate keys
-SELECT
-  COUNT_IF(DIM_MENU_SK IS NULL) AS null_menu_sk,
-  COUNT_IF(DIM_CUSTOMER_SK IS NULL) AS null_customer_sk,
-  COUNT_IF(DIM_LOCATION_SK IS NULL) AS null_location_sk,
-  COUNT_IF(DIM_DATE_SK IS NULL) AS null_date_sk
-FROM TASTYBYTES_CONSUMPTION.WAREHOUSE.FACT_ORDER_LINE;
--- Expected: all 0
-```
-
 ---
 
 ## Task 2.4: Apply Governance Tags and Comments
 
-Switch to `TB_ADMIN` and apply tags to all 3 warehouse tables.
+Apply tags to all 3 warehouse tables.
 
 ### Table-Level Tags
 
@@ -226,34 +208,19 @@ Apply the same `TASTY_PII` tags as in Module 1:
 | PHONE_NUMBER | `'PHONE_NUMBER'` |
 | BIRTHDAY_DATE | `'BIRTHDAY'` |
 
-### Comments
-
-Add table-level and column-level COMMENTs **inline in the CREATE TABLE statements** (Tasks 2.1-2.3). Use the same syntax as Module 1:
-
-```sql
-CREATE OR REPLACE TABLE DIM_MENU (
-    DIM_MENU_SK NUMBER AUTOINCREMENT START 1 INCREMENT 1 COMMENT 'Surrogate key (auto-increment)',
-    MENU_ITEM_ID NUMBER COMMENT 'Natural key - unique menu item identifier from source',
-    -- ... remaining columns with COMMENT ...
-) COMMENT = 'Menu item dimension (SCD Type 2). Tracks price and attribute changes over time.';
-```
-
 ---
 
 ## Task 2.5: Define GRANTS
 
-Grant access to both `TB_DATA_ENGINEER` and `TB_ANALYST`:
+Grant access to full access to `TB_DATA_ENGINEER` and **SELECT** access to `TB_ANALYST` on the new DIM and FACT tables:
 
 ```sql
 -- TB_DATA_ENGINEER: full access
-GRANT ALL ON TABLE TASTYBYTES_CONSUMPTION.WAREHOUSE.DIM_MENU TO ROLE TB_DATA_ENGINEER;
-GRANT ALL ON TABLE TASTYBYTES_CONSUMPTION.WAREHOUSE.DIM_CUSTOMER TO ROLE TB_DATA_ENGINEER;
-GRANT ALL ON TABLE TASTYBYTES_CONSUMPTION.WAREHOUSE.FACT_ORDER_LINE TO ROLE TB_DATA_ENGINEER;
+GRANT ALL ON TABLE <TABLE_NAME> TO ROLE <ROLE_NAME>;
 
 -- TB_ANALYST: read-only
-GRANT SELECT ON TABLE TASTYBYTES_CONSUMPTION.WAREHOUSE.DIM_MENU TO ROLE TB_ANALYST;
-GRANT SELECT ON TABLE TASTYBYTES_CONSUMPTION.WAREHOUSE.DIM_CUSTOMER TO ROLE TB_ANALYST;
-GRANT SELECT ON TABLE TASTYBYTES_CONSUMPTION.WAREHOUSE.FACT_ORDER_LINE TO ROLE TB_ANALYST;
+GRANT SELECT ON TABLE <TABLE_NAME> TO ROLE <ROLE_NAME>;
+
 ```
 
 ---

@@ -52,7 +52,6 @@ GROUP BY
 -- =============================================================
 -- Task 3.2: Apply governance tags and comment
 -- =============================================================
-USE ROLE TB_ADMIN;
 
 ALTER VIEW TASTYBYTES_CONSUMPTION.ANALYTICS.RPT_MONTHLY_MENU_SALES
   SET TAG TASTYBYTES_GOVERNANCE.GOVERNANCE.DATA_DOMAIN = 'Sales',

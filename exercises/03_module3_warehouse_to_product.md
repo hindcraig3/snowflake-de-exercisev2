@@ -69,12 +69,6 @@ DESCRIBE TABLE TASTYBYTES_CONSUMPTION.WAREHOUSE.DIM_LOCATION;
 
 ## Task 3.2: Apply Governance Tags and Comments
 
-Switch to `TB_ADMIN`:
-
-```sql
-USE ROLE TB_ADMIN;
-```
-
 ### Tags
 
 | Tag | Value |
