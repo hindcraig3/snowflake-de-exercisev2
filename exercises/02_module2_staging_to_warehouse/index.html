@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#module-2-staging-to-warehouse" class="md-skip">
+        <a href="#module-2-refined-zone-to-consumption-zone-modelled" class="md-skip">
           Skip to content
         </a>
       
@@ -1348,9 +1348,9 @@
 
 
 
-<h1 id="module-2-staging-to-warehouse">Module 2: STAGING to WAREHOUSE<a class="headerlink" href="#module-2-staging-to-warehouse" title="Permanent link">&para;</a></h1>
+<h1 id="module-2-refined-zone-to-consumption-zone-modelled">Module 2: REFINED ZONE to CONSUMPTION ZONE (MODELLED)<a class="headerlink" href="#module-2-refined-zone-to-consumption-zone-modelled" title="Permanent link">&para;</a></h1>
 <h2 id="objective">Objective<a class="headerlink" href="#objective" title="Permanent link">&para;</a></h2>
-<p>Create 2 dimension tables and 1 fact table in <code>TASTYBYTES_CONSUMPTION.WAREHOUSE</code>. Build MERGE-based stored procedures to load data from staging, and orchestrate them with a task graph. You will implement SCD Type 2 for <code>DIM_MENU</code> (tracking price history) and SCD Type 1 for <code>DIM_CUSTOMER</code> (overwrite on change).</p>
+<p>Create 2 dimension tables and 1 fact table in the CONSUMPTION zone. Build MERGE-based stored procedures to load data from refined zone, and orchestrate them with a task graph. You will implement SCD Type 2 for <code>DIM_MENU</code> (tracking price history) and SCD Type 1 for <code>DIM_CUSTOMER</code> (overwrite on change).</p>
 <hr />
 <h2 id="standards-and-conventions">Standards and Conventions<a class="headerlink" href="#standards-and-conventions" title="Permanent link">&para;</a></h2>
 <h3 id="naming">Naming<a class="headerlink" href="#naming" title="Permanent link">&para;</a></h3>
