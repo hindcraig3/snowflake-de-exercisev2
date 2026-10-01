@@ -1,8 +1,8 @@
-# Module 3: WAREHOUSE to DATA PRODUCT
+# Module 3: Reporting views in CONSUMPTION ZONE
 
 ## Objective
 
-Create a reporting view in `TASTYBYTES_CONSUMPTION.ANALYTICS` that answers the business question: **monthly sales volume, revenue, and margin of menu items and menu item categories, broken down by location and time period.**
+Create a reporting view in the CONSUMPTION ZONE that answers the business question: **What were monthly sales volume, revenue, and margin of menu items and menu item categories, broken down by location and time period.**
 
 ---
 

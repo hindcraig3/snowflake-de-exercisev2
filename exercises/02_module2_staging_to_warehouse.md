@@ -1,8 +1,8 @@
-# Module 2: STAGING to WAREHOUSE
+# Module 2: REFINED ZONE to CONSUMPTION ZONE (MODELLED)
 
 ## Objective
 
-Create 2 dimension tables and 1 fact table in `TASTYBYTES_CONSUMPTION.WAREHOUSE`. Build MERGE-based stored procedures to load data from staging, and orchestrate them with a task graph. You will implement SCD Type 2 for `DIM_MENU` (tracking price history) and SCD Type 1 for `DIM_CUSTOMER` (overwrite on change).
+Create 2 dimension tables and 1 fact table in the CONSUMPTION zone. Build MERGE-based stored procedures to load data from refined zone, and orchestrate them with a task graph. You will implement SCD Type 2 for `DIM_MENU` (tracking price history) and SCD Type 1 for `DIM_CUSTOMER` (overwrite on change).
 
 ---
 

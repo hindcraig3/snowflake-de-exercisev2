@@ -1,8 +1,8 @@
-# Module 1: RAW to STAGING
+# Module 1: RAW to REFINED
 
 ## Objective
 
-Create 4 staging tables in `TASTYBYTES_REFINED.STAGING` and build a pipeline to load data from the RAW layer. You will fix data quality issues, flatten JSON, apply governance tags, create load procedures, and orchestrate them with a task graph.
+Create 4 staging tables in `TASTYBYTES_REFINED.STAGING` and build a pipeline to load data from the RAW layer into the REFINED layer. You will fix data quality issues, flatten JSON, apply governance tags, create load procedures, and orchestrate them with a task graph.
 
 ---
 
