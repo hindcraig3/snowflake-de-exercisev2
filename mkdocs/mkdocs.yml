@@ -1,6 +1,6 @@
 site_name: TastyBytes Data Engineering Exercise
 site_description: Hands-on Snowflake data engineering exercise — build a complete pipeline from raw data to reporting view.
-docs_dir: .
+docs_dir: docs
 site_dir: site
 
 theme:
@@ -15,6 +15,7 @@ theme:
     - navigation.sections
     - navigation.expand
     - navigation.top
+    - navigation.footer
     - content.code.copy
     - content.code.annotate
     - toc.follow
@@ -43,7 +44,6 @@ markdown_extensions:
 
 plugins:
   - search
-  - same-dir
 
 nav:
   - Home: index.md
@@ -51,9 +51,9 @@ nav:
       - Environment Setup: setup/setup.md
   - Exercises:
       - Background: exercises/00_background.md
-      - "Module 1 — Raw to Staging": exercises/01_module1_raw_to_staging.md
-      - "Module 2 — Staging to Warehouse": exercises/02_module2_staging_to_warehouse.md
-      - "Module 3 — Warehouse to Data Product": exercises/03_module3_warehouse_to_product.md
+      - "Module 1 — Raw to Refined Zone": exercises/01_module1_raw_to_staging.md
+      - "Module 2 — Refined Zone to Consumption Zone": exercises/02_module2_staging_to_warehouse.md
+      - "Module 3 — Reporting Views": exercises/03_module3_warehouse_to_product.md
   - Model Answers:
       - Overview: model_answer/model_answer.md
   - Scripts:

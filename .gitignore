@@ -1,3 +1,5 @@
 .snowflake/
 /internal/
-/site/
+/mkdocs/site/
+.assessment/
+AGENTS.md
